@@ -18,8 +18,8 @@
       }
     ],
     "export": {
-        "exclude": ["test/*"],
-        "include": ["src/*"]
+        "include": ["src/*"],
+        "exclude": ["test/*", "src/main.cpp", ".vscode/*", ".gitignore"]
     },
     "license": "MIT",
     "homepage": "https://www.kibesoft.de/KSESPFramework/",
