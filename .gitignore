@@ -6,4 +6,5 @@
 **/*credentials.h
 **/*credentials.js
 **/*credentials.ini
+src/main.cpp
 **/.DS_Store
