@@ -75,6 +75,11 @@
 #define NTP_SYNC_INTERVAL_IN_MIN 6*60            // synchronization-interval
 //#define NTP_SYNC_INTERVAL_IN_MIN 2            // synchronization-interval for testing
 extern const char timezoneGermany[];
+extern const char ntpServer[];
+
+extern const long gmtOffset_sec;
+extern const int daylightOffset_sec;
+
 
 
 class KSNTPClient {
