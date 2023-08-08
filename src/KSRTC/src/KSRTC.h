@@ -54,6 +54,11 @@
 #define ISO8601_LEN (sizeof("1970-01-01T23:59:59.123456Z"))
 extern const char timezoneGermany[];
 
+// lokale Zeitzone definieren
+// https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
+extern const long gmtOffset_sec;		                  // UTC - 1.00
+
+
 
 struct deviceUptime {
     long days;

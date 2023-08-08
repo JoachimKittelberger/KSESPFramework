@@ -62,6 +62,15 @@
 #define DEFAULT_RETRY_IN_SEC_NO_CONNECTION 4                    // default retry Intervall für UpdateStatus if we have no connection
 
 
+extern const char SW_VERSION[];
+extern const char PROJECT_NAME[];
+extern const char updateServerIP[];
+
+extern const char autoUpdateStatePath[];
+extern const char autoUpdateReadStatusPath[];
+extern const char autoUpdateWriteStatusPath[];
+
+
 
 class KSAutoUpdate {
     public:

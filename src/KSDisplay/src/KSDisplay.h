@@ -70,6 +70,10 @@
 #define DELTAY 2
 
 
+// must be defined in KSProjectInfo.h of the ino-Projec with const char SW_VERSION[] = "1.0.0.0" ...
+extern const char SW_VERSION[];         // maximum 8 char
+extern const char PROJECT_NAME[];       // maximum 21 char
+
 
 
 class KSDisplay

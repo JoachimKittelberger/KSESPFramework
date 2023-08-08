@@ -76,9 +76,6 @@ String KSAppInfo::listESPStateJSON() {
 
 #ifdef TEST_APPINFO
 
-//extern const char SW_VERSION[] = "1.00.00";                // maximum 8 char
-extern const char PROJECT_NAME[] = "TelnetTest";           // maximum 21 char
-// könnte auch gemacht werden mit const char* SW_VERSION = "1.01.00";
 
 
 welcomeMsg = strdup(TELNETSPY_WELCOME_MSG);

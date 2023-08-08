@@ -48,11 +48,6 @@
 #include "KSUtilities/src/KSUtilities.h"
 
 
-// lokale Zeitzone definieren
-// https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-extern const long gmtOffset_sec;		                  // UTC - 1.00
-
-
 
 KSRTC::KSRTC(KSCriticalSection* pcsI2C) {
     _pcsI2C = pcsI2C;

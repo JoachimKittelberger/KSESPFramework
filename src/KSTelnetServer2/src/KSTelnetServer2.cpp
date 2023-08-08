@@ -52,10 +52,8 @@
 KSTelnetServer2* KSTelnetServer2::obj = NULL;
 
 
-//extern const char SW_VERSION[];
-//extern const char PROJECT_NAME[];
-char* KSTelnetServer2::_pSW_VERSION = NULL;
-char* KSTelnetServer2::_pPROJECT_NAME = NULL;
+char* KSTelnetServer2::_pSW_VERSION = const_cast<char*>(SW_VERSION);
+char* KSTelnetServer2::_pPROJECT_NAME = const_cast<char*>(PROJECT_NAME);
 
 
 KSTelnetServer2::KSTelnetServer2(uint16_t port) {

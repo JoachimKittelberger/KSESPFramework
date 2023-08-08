@@ -69,6 +69,11 @@ Dazu gibt es mehrere Möglichkeiten:
 	    -D USE_KSBattery=1
     ```
     Hier werden nur die Klassen KSAppInfo und KSBattery eingebunden. In dem Fall müssen auch nur diejenigen externen Bibliotheken unter lib_deps angegeben werden, die für diese Klassen benötigt werden. In den Kommentaren der Bibliotheken steht am Ende, für welche Klassen diese externen Bibliotheken benötigt werden. Alle anderen können gelöscht oder mit `";"` auskommentiert werden.
+- Einbinden der Header-Datei aus dem Framework in main.cpp
+  - In main.cpp der eigenen Applikation muss ```#include "KSESPFramework.h"``` eingetragen werden.
+  - die Datei ```include/KSCredentials.h.tpl``` aus dem Framework in das include-Verzeichnis der eigenen Applikation kopieren und in ```myCredentials.h``` umbenennen.
+  - Anschließend die Inhalte der Datei ```myCredentials.h```an die eigenen Gegebenheiten anpassen 
+  - Wird der Framework lokal auf der Festplatte installiert, kann hier auf die Original-Datei ```include/KSCredentials.h``` im Framework verwiesen werden, die zuvor aus der Datei ```include/KSCredentials.h.tpl``` erzeugt werden muss..
 
 
 

@@ -98,6 +98,12 @@ extern const char *PresentStates[];   // define in cpp-file
 
 
 
+extern const char fbUsername[];
+extern const char fbPassword[];
+extern const char fbIp[];
+
+
+
 
 class KSAVMConnection {
 

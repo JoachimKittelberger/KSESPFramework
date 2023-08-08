@@ -46,6 +46,22 @@
 #include <Preferences.h>
 
 
+/*
+extern const char wifi_ssid[];
+extern const char wifi_password[];
+
+extern const char fbUsername[];
+extern const char fbPassword[];
+extern const char fbIp[];
+
+extern const char mqttServerIP[];
+extern const char mqttUserName[];
+extern const char mqttUserPassword[];
+
+extern const char ftpUserName[];
+extern const char ftpUserPassword[];
+
+*/
 
 
 

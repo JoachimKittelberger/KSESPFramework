@@ -47,12 +47,6 @@
 #include "KSAVMConnection.h"
 
 
-extern const char fbUsername[];
-extern const char fbPassword[];
-extern const char fbIp[];
-
-
-
 const char *SwStates[] =
 {
     "OFF",

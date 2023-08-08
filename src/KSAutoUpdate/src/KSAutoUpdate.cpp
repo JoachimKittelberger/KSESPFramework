@@ -51,15 +51,6 @@
 #include "KSEventGroupNetwork/src/KSEventGroupNetwork.h"
 
 
-extern const char SW_VERSION[];
-extern const char PROJECT_NAME[];
-extern const char updateServerIP[];
-
-extern const char autoUpdateStatePath[];
-extern const char autoUpdateReadStatusPath[];
-extern const char autoUpdateWriteStatusPath[];
-
-
 
 KSAutoUpdate::KSAutoUpdate(const char *hostname)
     : /*onStartListener(NULL)

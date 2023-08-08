@@ -62,6 +62,18 @@
 //#define MQTT_Port 8883  // for TLS
 
 
+
+
+extern const char mqttServerIP[];
+extern const char mqttUserName[];
+extern const char mqttUserPassword[];
+
+extern const char mqttClientID[];		// TODO: Eindeutige ClientID erzeugen z.B. wie in Wifi.cpp
+//extern const char mqttTopicLive[];
+
+
+
+
 class KSMQTTSubscriptionTopic;
 
 class KSMQTTConnection {

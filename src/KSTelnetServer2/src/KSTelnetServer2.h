@@ -49,6 +49,9 @@
 
 #include "KSESPTelnet.h"
 
+extern const char SW_VERSION[];
+extern const char PROJECT_NAME[];
+
 
 class KSTelnetServer2 : public Print {
     public:
