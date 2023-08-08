@@ -1,0 +1,30 @@
+{
+    "name": "KSESPFramework",
+    "version": "0.0.0",
+    "description": "A library that provides usefull ESP functionality",
+    "keywords": "ESP, ESP32, framework",
+    "repository":
+    {
+      "type": "git",
+      "url": "https://github.com/JoachimKittelberger/KSESPFramework.git"
+    },
+    "authors":
+    [
+      {
+        "name": "Joachim Kittelberger",
+        "email": "info@kibesoft.de",
+        "url": "https://www.kibesoft.de",
+        "maintainer": true
+      }
+    ],
+    "export": {
+        "exclude": ["test/*"],
+        "include": ["src/*"]
+    },
+    "license": "MIT",
+    "homepage": "https://www.kibesoft.de/KSESPFramework/",
+    "dependencies": {
+    },
+    "frameworks": ["arduino", "espidf"],
+    "platforms": "*"
+  }

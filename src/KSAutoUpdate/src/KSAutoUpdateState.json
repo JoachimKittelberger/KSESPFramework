@@ -1,0 +1,19 @@
+{
+    "Projects":[
+        {
+            "Project": "KHAGeigerZaehler",
+            "DisableDeepSleep": true
+        },
+        {
+            "Project": "KHAWeatherStation",
+            "DisableDeepSleep": false
+        },
+        {
+            "Project": "UpdateTest",
+            "DisableDeepSleep": true,
+            "UpdateAvailable": false,
+            "Version": "1.03.00",
+            "Binfile": "UpdateTestV1.03.PWD.ino.esp32.bin"
+        }
+    ]
+  }

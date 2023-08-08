@@ -1,0 +1,5 @@
+KSESPFramework	KEYWORD1
+KSAppInfo   KEYWORD2
+KSAutoUpdate    KEYWORD2
+KSAVMConnection KEYWORD2
+KSWiFiConnection    KEYWORD2
