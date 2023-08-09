@@ -46,6 +46,7 @@
 
 #include "KSTelnetServer2.h"
 #include "KSEventGroupNetwork/src/KSEventGroupNetwork.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 
@@ -73,12 +74,12 @@ TaskHandle_t KSTelnetServer2::createConnection(EventGroupHandle_t *phEventGroupN
 	_phEventGroupNetwork = phEventGroupNetwork;
  
 	int coreID = xPortGetCoreID();
-	//Serial.print(F("CoreID: "));
-	//Serial.println(coreID);
+	//LOGGER.print(F("CoreID: "));
+	//LOGGER.println(coreID);
 	
 	UBaseType_t setupPriority = uxTaskPriorityGet(NULL);
-	//Serial.print(F("setup: priority = "));
-	//Serial.println(setupPriority);
+	//LOGGER.print(F("setup: priority = "));
+	//LOGGER.println(setupPriority);
 
 	xTaskCreatePinnedToCore(
     	[](void* context){ static_cast<KSTelnetServer2*>(context)->tKSTelnetServer(); },
@@ -101,17 +102,17 @@ void KSTelnetServer2::tKSTelnetServer()
     // Wenn Connection-Bit noch nicht gesetzt, dann das erste Mal warten.
     if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
         if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-            //Serial.println(F("[telnet2] Wating for Event EG_NETWORK_CONNECTED"));
+            //LOGGER.println(F("[telnet2] Wating for Event EG_NETWORK_CONNECTED"));
             EventBits_t eventGroupValue;
             eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-            //Serial.println(F("[telnet2] Event EG_NETWORK_CONNECTED set"));
+            //LOGGER.println(F("[telnet2] Event EG_NETWORK_CONNECTED set"));
         }
     }
             
     setupCallbacks();
 
     if (!_telnet.begin()) {
-        Serial.println("[telnet2] Error _telnet.begin()");
+        LOGGER.println("[telnet2] Error _telnet.begin()");
     }
 	
 	// main loop telnet
@@ -122,13 +123,13 @@ void KSTelnetServer2::tKSTelnetServer()
         if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
             if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
                 _telnet.stop();
-                //Serial.println(F("[telnet2] Wating for Event EG_NETWORK_CONNECTED"));
+                //LOGGER.println(F("[telnet2] Wating for Event EG_NETWORK_CONNECTED"));
                 EventBits_t eventGroupValue;
                 eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-                //Serial.println(F("[telnet2] Event EG_NETWORK_CONNECTED set"));
+                //LOGGER.println(F("[telnet2] Event EG_NETWORK_CONNECTED set"));
 
                 if (!_telnet.begin()) {
-                    Serial.println("[telnet2] Error _telnet.begin()");
+                    LOGGER.println("[telnet2] Error _telnet.begin()");
                 }
             }
         }
@@ -148,7 +149,7 @@ void KSTelnetServer2::onInputReceived(String str) {
 
         //if (str == "Restart") {
         if (str.equalsIgnoreCase("Restart")) {
-            //Serial.println("[telnet] [R] Restart ESP");
+            //LOGGER.println("[telnet] [R] Restart ESP");
             obj->_telnet.println("Restarting ...");
             obj->_telnet.flush();
             vTaskDelay(pdMS_TO_TICKS(100));
@@ -156,7 +157,7 @@ void KSTelnetServer2::onInputReceived(String str) {
         }
         //else if (str == "Quit") {
         else if (str.equalsIgnoreCase("Quit")) {
-            //Serial.println("[telnet] [Q] Quit");
+            //LOGGER.println("[telnet] [Q] Quit");
             obj->_telnet.println("bye bye");
             obj->_telnet.flush();
             //obj->_telnet.stop();
@@ -164,19 +165,19 @@ void KSTelnetServer2::onInputReceived(String str) {
         }
         //else if (str == "StartCyclic") {
         else if (str.equalsIgnoreCase("StartCyclic")) {
-            //Serial.println("[telnet] [G] Go send cyclic Data");
+            //LOGGER.println("[telnet] [G] Go send cyclic Data");
             obj->_telnet.println("[telnet] Start sending cyclic data");
             obj->_sendCyclicData = true;
         }
         //else if (str == "StopCyclic") {
         else if (str.equalsIgnoreCase("StopCyclic")) {
-            //Serial.println("[telnet] [S] Stop send cyclic Data");
+            //LOGGER.println("[telnet] [S] Stop send cyclic Data");
             obj->_telnet.println("[telnet] Stop sending cyclic data");
             obj->_sendCyclicData = false;
         }
 
 //               	else if (str == "Info") == 0) {
-//                    Serial.println("Telnet: [I] Get Info");
+//                    LOGGER.println("Telnet: [I] Get Info");
 //                    this->printf("Project: %s Version: %s\n", PROJECT_NAME, SW_VERSION);
 //               }
         else {
@@ -216,9 +217,9 @@ void KSTelnetServer2::onInputReceived(String str) {
 
 
 void KSTelnetServer2::onConnect(String ip) {
-    Serial.print("[telnet2] ");
-    Serial.print(ip);
-    Serial.println(" connected");
+    LOGGER.print("[telnet2] ");
+    LOGGER.print(ip);
+    LOGGER.println(" connected");
 
     obj->_telnet.println("Welcome " + obj->_telnet.getIP());
     //obj->_telnet.println("(Use ^] + q  to disconnect.)");
@@ -240,23 +241,23 @@ void KSTelnetServer2::onConnect(String ip) {
 
 
 void KSTelnetServer2::onConnectionAttempt(String ip) {
-    Serial.print("[telnet2] ");
-    Serial.print(ip);
-    Serial.println(" tried to connected");
+    LOGGER.print("[telnet2] ");
+    LOGGER.print(ip);
+    LOGGER.println(" tried to connected");
 }
 
 
 void KSTelnetServer2::onReconnect(String ip) {
-    Serial.print("[telnet2] ");
-    Serial.print(ip);
-    Serial.println(" reconnected");
+    LOGGER.print("[telnet2] ");
+    LOGGER.print(ip);
+    LOGGER.println(" reconnected");
 }
 
 
 void KSTelnetServer2::onDisconnect(String ip) {
-    Serial.print("[telnet2] ");
-    Serial.print(ip);
-    Serial.println(" disconnected");
+    LOGGER.print("[telnet2] ");
+    LOGGER.print(ip);
+    LOGGER.println(" disconnected");
 }
 
 

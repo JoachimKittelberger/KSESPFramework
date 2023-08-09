@@ -45,21 +45,22 @@
 
 #include "KSStratoMailClient.h"
 
+#include "KSLogger/src/KSLogger.h"
 
 
 // Callback function to get the Email sending status
 void smtpCallback(SMTP_Status status)
 {
   // Print the current status
-  Serial.println(status.info());
+  LOGGER.println(status.info());
 
   // Print the sending result
   if (status.success())
   {
-    Serial.println("----------------");
+    LOGGER.println("----------------");
     ESP_MAIL_PRINTF("Message sent success: %d\n", status.completedCount());
     ESP_MAIL_PRINTF("Message sent failled: %d\n", status.failedCount());
-    Serial.println("----------------\n");
+    LOGGER.println("----------------\n");
 
 /*
     struct tm dt;
@@ -79,7 +80,7 @@ void smtpCallback(SMTP_Status status)
       ESP_MAIL_PRINTF("Recipient: %s\n", result.recipients.c_str());
       ESP_MAIL_PRINTF("Subject: %s\n", result.subject.c_str());
     }
-    Serial.println("----------------\n");
+    LOGGER.println("----------------\n");
 
     //You need to clear sending result as the memory usage will grow up.
     _smtp.sendingResult.clear();
@@ -113,6 +114,36 @@ void KSStratoMailMessage::addAttachment(const char* filename) {
     _message.addAttachment(att);
 
 }
+
+
+bool KSStratoMailClient::sendMail(KSStratoMailMessage* pMessage) { 
+    bool bRetVal = true;
+    
+    // Set the callback function to get the sending results
+//           _smtp.callback(smtpCallback);
+    //_smtp.callback(smtpCallback);
+    // connect the callback function. Wird benötigt, damit eine member-function als callback verwendet werden kann. Sonst muss diese Static definiert sein.
+    //std::function<void(SMTP_Status)> memPtr = NULL;
+  //auto memPtr = std::bind(&KSStratoMailClient::smtpCallback, this, std::placeholders::_1);
+    //_smtp.callback(memPtr);
+
+    
+    if (!_smtp.connect(&_session))
+        return false;
+
+    // Start sending Email and close the session
+    if (!MailClient.sendMail(&_smtp, pMessage->getSMTPMessagePtr())) {
+        LOGGER.println("Error sending Email, " + _smtp.errorReason());
+        bRetVal = false;
+    }
+    //to clear sending result log. If we have no callback-function we have to call it here otherwise in the callback functions
+    _smtp.sendingResult.clear();
+
+    //ESP_MAIL_PRINTF("Free Heap: %d\n", MailClient.getFreeHeap());
+    return bRetVal;
+}
+        
+
 
 
 #endif    // #if defined USE_KSStratoMailClient || defined KSLIBRARIES_USEALL

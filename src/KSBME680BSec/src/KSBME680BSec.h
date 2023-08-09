@@ -89,7 +89,7 @@ class KSBsec : public Bsec {
             _bme680.power_mode = BME680_SLEEP_MODE;
 
             if (bme680_set_sensor_mode(&_bme680) != BME680_OK) {
-                Serial.println("[KSBsec]: Error bme680_set_sensor_mode()");
+                LOGGER.println("[KSBsec]: Error bme680_set_sensor_mode()");
                 return false;
             }
 */
@@ -99,7 +99,7 @@ class KSBsec : public Bsec {
     private:    
  	    static int8_t i2cRead(uint8_t regAddr, uint8_t *regData, uint32_t length, void *intfPtr) {
  //       static int8_t i2cRead(uint8_t devId, uint8_t regAddr, uint8_t *regData, uint16_t length) {
-            //Serial.println("i2cRead");
+            //LOGGER.println("i2cRead");
             uint8_t retVal = 0;
             if (_pcsI2C) _pcsI2C->EnterCriticalSection();
             retVal = Bsec::i2cRead(regAddr, regData, length, (void*)(intptr_t)_I2Caddr);
@@ -110,7 +110,7 @@ class KSBsec : public Bsec {
     
  	    static int8_t i2cWrite(uint8_t regAddr, const uint8_t *regData, uint32_t length, void *intfPtr) {
 //        static int8_t i2cWrite(uint8_t devId, uint8_t regAddr, uint8_t *regData, uint16_t length) {
-            //Serial.println("i2cWrite");
+            //LOGGER.println("i2cWrite");
             uint8_t retVal = 0;
             if (_pcsI2C) _pcsI2C->EnterCriticalSection();
             retVal = Bsec::i2cWrite(regAddr, regData, length, (void*)(intptr_t)_I2Caddr);

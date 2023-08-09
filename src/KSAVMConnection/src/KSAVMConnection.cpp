@@ -46,6 +46,8 @@
 
 #include "KSAVMConnection.h"
 
+#include "KSLogger/src/KSLogger.h"
+
 
 const char *SwStates[] =
 {
@@ -82,14 +84,14 @@ void KSAVMConnection::init() {
 
 void KSAVMConnection::ensureWIFIConnection() {
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.print("Connecting to ");
-    Serial.println(WiFi.SSID());
+    LOGGER.print("Connecting to ");
+    LOGGER.println(WiFi.SSID());
     while (WiFi.status() != WL_CONNECTED) {
       vTaskDelay(pdMS_TO_TICKS(500));
-      Serial.print(".");
+      LOGGER.print(".");
     }
-    Serial.print("IP number is ");
-    Serial.println(WiFi.localIP());
+    LOGGER.print("IP number is ");
+    LOGGER.println(WiFi.localIP());
   }
 }
 
@@ -106,7 +108,7 @@ bool KSAVMConnection::isWIFIConnected() {
 
 void KSAVMConnection::SetSwitchState(String AIN, SwState state) {
     if (!isWIFIConnected()) {
-      Serial.println("No WIFI-Connection in KSAVMConnection::SetSwitchState()");
+      LOGGER.println("No WIFI-Connection in KSAVMConnection::SetSwitchState()");
       return;
     }
     //ensureWIFIConnection();
@@ -114,19 +116,19 @@ void KSAVMConnection::SetSwitchState(String AIN, SwState state) {
     String params[][2] = {{"NewAIN", AIN}, {"NewSwitchState", SwStates[state]}};
     _fbConnection.action("urn:dslforum-org:service:X_AVM-DE_Homeauto:1", "SetSwitch", params, 2);
 
-    //Serial.println("SetSwitchState()");
+    //LOGGER.println("SetSwitchState()");
 
-    //Serial.print("Set Switch state of ");
-    //Serial.print(AIN);
-    //Serial.print(" to: ");
-    //Serial.println(state);
+    //LOGGER.print("Set Switch state of ");
+    //LOGGER.print(AIN);
+    //LOGGER.print(" to: ");
+    //LOGGER.println(state);
 }
 
 
 
 bool KSAVMConnection::GetSwitchState(String AIN) {
   if (!isWIFIConnected()) {
-      Serial.println("No WIFI-Connection in KSAVMConnection::GetSwitchState()");
+      LOGGER.println("No WIFI-Connection in KSAVMConnection::GetSwitchState()");
       return false;
   }
   //ensureWIFIConnection();
@@ -138,14 +140,14 @@ bool KSAVMConnection::GetSwitchState(String AIN) {
   String state = req[1][1];
   String present = req[2][1];
 
-    //Serial.println("GetSwitchState()");
+    //LOGGER.println("GetSwitchState()");
 /*
-    Serial.print("Get Switch state of ");
-    Serial.print(name);
-    Serial.print(": ");
-    Serial.print(state);
-    Serial.print(" Presence: ");
-    Serial.println(present);
+    LOGGER.print("Get Switch state of ");
+    LOGGER.print(name);
+    LOGGER.print(": ");
+    LOGGER.print(state);
+    LOGGER.print(" Presence: ");
+    LOGGER.println(present);
 */
   bool bRetVal = false;
   if (state == SwStates[SwState::ON]) {
@@ -159,7 +161,7 @@ bool KSAVMConnection::GetSwitchState(String AIN) {
 
 bool KSAVMConnection::IsSwitchPresent(String AIN) {
     if (!isWIFIConnected()) {
-       Serial.println("No WIFI-Connection in KSAVMConnection::IsSwitchPresent()");
+       LOGGER.println("No WIFI-Connection in KSAVMConnection::IsSwitchPresent()");
       return false;
     }
     //ensureWIFIConnection();
@@ -173,10 +175,10 @@ bool KSAVMConnection::IsSwitchPresent(String AIN) {
       return true;
     }
     
-    Serial.print("Switch ");
-    Serial.print(AIN);
-    Serial.print(" not present. State: ");
-    Serial.println(present);
+    LOGGER.print("Switch ");
+    LOGGER.print(AIN);
+    LOGGER.print(" not present. State: ");
+    LOGGER.println(present);
 
     return false;
 }
@@ -192,12 +194,12 @@ float KSAVMConnection::GetSwitchTemperature(String AIN) {
     float power = req[0][1].toInt() / 100.0;
     float temp = req[1][1].toInt() / 10.0;
 /* 
-    Serial.print("Stromverbrauch: ");
-    Serial.print(power, 1);
-    Serial.println("W");
-    Serial.print("Temperatur: ");
-    Serial.print(temp, 1);
-    Serial.println("*C");
+    LOGGER.print("Stromverbrauch: ");
+    LOGGER.print(power, 1);
+    LOGGER.println("W");
+    LOGGER.print("Temperatur: ");
+    LOGGER.print(temp, 1);
+    LOGGER.println("*C");
 */
     return temp;
 }
@@ -214,13 +216,13 @@ void KSAVMConnection::GetDeviceInfo(String AIN) {
     String name = req[0][1];
     float power = req[1][1].toInt() / 100.0;
     float temp = req[2][1].toInt() / 10.0;
-    Serial.print(name);
-    Serial.print(" Stromverbrauch: ");
-    Serial.print(power, 1);
-    Serial.println("W");
-    Serial.print("Temperatur: ");
-    Serial.print(temp, 1);
-    Serial.println("*C");
+    LOGGER.print(name);
+    LOGGER.print(" Stromverbrauch: ");
+    LOGGER.print(power, 1);
+    LOGGER.println("W");
+    LOGGER.print("Temperatur: ");
+    LOGGER.print(temp, 1);
+    LOGGER.println("*C");
 }
  
 

@@ -46,6 +46,8 @@
 #include <string.h>
 #include <math.h>
 
+#include "KSLogger/src/KSLogger.h"
+
 
 // check, if an string starts with an given prefixstring
 //#define STARTS_WITH(string_to_check, prefix) (strncmp(string_to_check, prefix, ((sizeof(prefix) / sizeof(prefix[0])) - 1)) ? 0:((sizeof(prefix) / sizeof(prefix[0])) - 1))
@@ -73,7 +75,7 @@ void formatDATE2DE(char const *date, char *buff, size_t len) {
 
 
 void printSketchInfo(char const* currentProject) {
-	Serial.printf("\n\nSketchname: %s\nBuild: %s\t\tIDE: %d.%d.%d\nESP-SDK: %s\n",
+	LOGGER.printf("\n\nSketchname: %s\nBuild: %s\t\tIDE: %d.%d.%d\nESP-SDK: %s\n",
 					(currentProject), (__TIMESTAMP__), ARDUINO / 10000, ARDUINO % 10000 / 100, ARDUINO % 100 / 10 ? ARDUINO % 100 : ARDUINO % 10, String(ESP.getSdkVersion()).c_str());
 }
 
@@ -335,13 +337,13 @@ bool isSummerTime(struct tm* pTimeinfo)
     timeinfoEndDst.tm_min = 0;
     timeinfoEndDst.tm_sec = 0;
 
-    //Serial.print("Start summertime: ");
+    //LOGGER.print("Start summertime: ");
     //printTimeinfoStruct(&timeinfoStartDst);
-    //Serial.println();
+    //LOGGER.println();
 
-    //Serial.print("End summertime: ");
+    //LOGGER.print("End summertime: ");
     //printTimeinfoStruct(&timeinfoEndDst);
-    //Serial.println();
+    //LOGGER.println();
  
     time_t timeinfoVal = timeInfo2time_t(pTimeinfo);
     time_t timeinfoStartDstVal = timeInfo2time_t(&timeinfoStartDst);
@@ -349,10 +351,10 @@ bool isSummerTime(struct tm* pTimeinfo)
 
     if (timeinfoVal > timeinfoStartDstVal && timeinfoVal < timeinfoEndDstVal) {
         bSummerTime = true;
-        Serial.print("It's summertime!  ");
+        LOGGER.print("It's summertime!  ");
     } else {
         bSummerTime = false;
-        Serial.print("It's wintertime!  ");
+        LOGGER.print("It's wintertime!  ");
     }
     return bSummerTime;
 }
@@ -389,15 +391,15 @@ void printSunSetSunDownForToday()
 {
     struct tm timeinfo;
     if (!getLocalTime(&timeinfo)) {
-        Serial.println("Failed to obtain time");
+        LOGGER.println("Failed to obtain time");
         return;
     }
     
     bool isDST = isSummerTime(&timeinfo);           // check if we have summertime
     int sunrise = GetSunriseForDateInMin(&timeinfo, isDST);
     int sunset  = GetSunsetForDateInMin(&timeinfo, isDST);
-    Serial.printf("Sunrise today: %02d:%02d", sunrise / 60, sunrise % 60);
-    Serial.printf("   Sunset today: %02d:%02d\n", sunset / 60, sunset % 60);
+    LOGGER.printf("Sunrise today: %02d:%02d", sunrise / 60, sunrise % 60);
+    LOGGER.printf("   Sunset today: %02d:%02d\n", sunset / 60, sunset % 60);
 }
 
 
@@ -406,8 +408,8 @@ void printTimeinfoStruct(struct tm* pTimeinfo) {
     if (!pTimeinfo)
         return;
 
-    //Serial.println(pTimeinfo, "%A, %B %d %Y %H:%M:%S");           // TODO: Dies führt zu einem Absturz!!!!!!!!!!!!
-    Serial.printf("%02d.%02d.%4d %02d:%02d:%02d", pTimeinfo->tm_mday, pTimeinfo->tm_mon + 1, pTimeinfo->tm_year + 1900,
+    //LOGGER.println(pTimeinfo, "%A, %B %d %Y %H:%M:%S");           // TODO: Dies führt zu einem Absturz!!!!!!!!!!!!
+    LOGGER.printf("%02d.%02d.%4d %02d:%02d:%02d", pTimeinfo->tm_mday, pTimeinfo->tm_mon + 1, pTimeinfo->tm_year + 1900,
         pTimeinfo->tm_hour, pTimeinfo->tm_min, pTimeinfo->tm_sec);
 }
 

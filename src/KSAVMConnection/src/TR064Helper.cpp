@@ -45,6 +45,7 @@
 
 
 #include "TR064Helper.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 extern TR064 fbConnection;
@@ -88,9 +89,9 @@ void getStatusOfAllWifi(int numDev) {
 		String req[][2] = {{"NewAssociatedDeviceAuthState", ""}, {"NewAssociatedDeviceMACAddress", ""}, {"NewAssociatedDeviceIPAddress", ""}};
 		fbConnection.action("urn:dslforum-org:service:WLANConfiguration:1", "GetGenericAssociatedDeviceInfo", params, 1, req, 2);
 		if(Serial) {
-			Serial.printf("%d:\t", i);
-			Serial.println((req[1][1])+" is online "+(req[0][1]));
-			Serial.flush();
+			LOGGER.printf("%d:\t", i);
+			LOGGER.println((req[1][1])+" is online "+(req[0][1]));
+			LOGGER.flush();
 		}
 	}
 }
@@ -106,8 +107,8 @@ void getStatusOfMACwifi(String mac, String (&r)[4][2]) {
 	String req[][2] = {{"NewAssociatedDeviceIPAddress", ""}, {"NewAssociatedDeviceAuthState", ""}};
 	fbConnection.action("urn:dslforum-org:service:WLANConfiguration:1", "GetSpecificAssociatedDeviceInfo", params, 1, req, 2);
 	if(Serial) {
-		Serial.println(mac + " is online " + (req[2][1]));
-		Serial.flush();
+		LOGGER.println(mac + " is online " + (req[2][1]));
+		LOGGER.flush();
 	}
 	r[STATUS_MAC_INDEX][0] = STATUS_MAC;
 	r[STATUS_MAC_INDEX][1] = mac;
@@ -142,8 +143,8 @@ void getStatusOfMAC(String mac, String (&r)[4][2]) {
 	String req[][2] = {{"NewIPAddress", ""}, {"NewActive", ""}, {"NewHostName", ""}};
 	fbConnection.action("urn:dslforum-org:service:Hosts:1", "GetSpecificHostEntry", params, 1, req, 2);
 	if(Serial) {
-		Serial.println(mac + " is online " + (req[1][1]));
-		Serial.flush();
+		LOGGER.println(mac + " is online " + (req[1][1]));
+		LOGGER.flush();
 	}
 	r[STATUS_MAC_INDEX][0] = STATUS_MAC;
 	r[STATUS_MAC_INDEX][1] = mac;
@@ -162,9 +163,11 @@ void getStatusOfMAC(String mac, String (&r)[4][2]) {
  */
 void verboseStatus(String r[4][2]) {
 	for (int i=0;i<4;++i) {
-		if(Serial) Serial.print(r[i][0]+"="+r[i][1]+", ");
+//		if(Serial) LOGGER.print(r[i][0]+"="+r[i][1]+", ");
+		LOGGER.print(r[i][0]+"="+r[i][1]+", ");
 	}
-	if(Serial) Serial.print("\n");
+//	if(Serial) LOGGER.print("\n");
+	LOGGER.print("\n");
 }
 
 #endif		// #if defined USE_KSAVMConnection || defined KSLIBRARIES_USEALL

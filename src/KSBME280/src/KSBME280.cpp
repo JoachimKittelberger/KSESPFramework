@@ -43,8 +43,9 @@
 
 #if defined USE_KSBME280 || defined KSLIBRARIES_USEALL    // include File in Build only if it ist defined to use it
 
-
 #include "KSBME280.h"
+
+#include "KSLogger/src/KSLogger.h"
 
 
 KSBME280::KSBME280(uint8_t addr, TwoWire *theWire, KSCriticalSection* pcsI2C) : _bme(pcsI2C) {
@@ -65,7 +66,7 @@ void KSBME280::init() {
     status = _bme.begin(_I2Caddr, _pWire);
     _isInitialized = status;
     if (!status) {
-        Serial.println("Error: Could not find a valid BME280 sensor, check wiring!");
+        LOGGER.println("Error: Could not find a valid BME280 sensor, check wiring!");
     } else {
         // set forced mode
         //_bme.setMode(MODE_FORCED);
@@ -131,7 +132,7 @@ bool KSBME280::read(float* pTemperature, float* pHumidity, float* pPressure, flo
     if (pTemperature) {
         *pTemperature = this->readTemperature();
         if (isnan(*pTemperature)) {
-    		Serial.println(F("Failed to read from BME sensor!"));
+    		LOGGER.println(F("Failed to read from BME sensor!"));
             bRetVal = false;
         }
     }
@@ -139,7 +140,7 @@ bool KSBME280::read(float* pTemperature, float* pHumidity, float* pPressure, flo
     if (pHumidity) {
         *pHumidity = this->readHumidity();
         if (isnan(*pHumidity)) {
-    		Serial.println(F("Failed to read from BME sensor!"));
+    		LOGGER.println(F("Failed to read from BME sensor!"));
             bRetVal = false;
         }
     }
@@ -147,7 +148,7 @@ bool KSBME280::read(float* pTemperature, float* pHumidity, float* pPressure, flo
     if (pPressure) {
         *pPressure = this->readPressure();
         if (isnan(*pPressure)) {
-    		Serial.println(F("Failed to read from BME sensor!"));
+    		LOGGER.println(F("Failed to read from BME sensor!"));
             bRetVal = false;
         }
     }
@@ -155,7 +156,7 @@ bool KSBME280::read(float* pTemperature, float* pHumidity, float* pPressure, flo
     if (pAltitude) {
         *pAltitude = this->readAltitude();
         if (isnan(*pAltitude)) {
-    		Serial.println(F("Failed to read from BME sensor!"));
+    		LOGGER.println(F("Failed to read from BME sensor!"));
             bRetVal = false;
         }
     }
@@ -196,12 +197,12 @@ bool KSBME280::read(int* peCO2, int* pTVOC) {
             }
 		}
 		else {
-			Serial.printf("ERROR!  %d Reading CCS811\n", retVal);
+			LOGGER.printf("ERROR!  %d Reading CCS811\n", retVal);
             bRetVal = false;
 		}
 	}
 	else {
-		Serial.println(F("WARNING! CCS811 new data not available"));
+		LOGGER.println(F("WARNING! CCS811 new data not available"));
 	}
     return bRetVal;
 }

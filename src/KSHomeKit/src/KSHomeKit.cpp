@@ -45,6 +45,8 @@
 
 #include "KSHomeKit.h"
 
+//#include "KSLogger/src/KSLogger.h"
+// in den includes können wir leider keinen Logger benutzen, da dann compilerfehler bei tr064.h kommt
 #include "devices/DEV_Identify.h"   
 #include "devices/DEV_GarageDoor.h"
 #include "devices/DEV_ExtSensors.h"
@@ -58,6 +60,8 @@
 #include "devices/DEV_Switch.h"
 #include "devices/DEV_AVMSwitch.h"
 //#include "devices/DEV_Sensors.h"
+
+#include "KSLogger/src/KSLogger.h"
 
 
 
@@ -75,12 +79,12 @@ KSHomeKit::~KSHomeKit() {
 TaskHandle_t KSHomeKit::createHomeKit() {
 
 	int coreID = xPortGetCoreID();
-	//Serial.print(F("CoreID: "));
-	//Serial.println(coreID);
+	//LOGGER.print(F("CoreID: "));
+	//LOGGER.println(coreID);
 	
 	UBaseType_t setupPriority = uxTaskPriorityGet(NULL);
-	//Serial.print(F("setup: priority = "));
-	//Serial.println(setupPriority);
+	//LOGGER.print(F("setup: priority = "));
+	//LOGGER.println(setupPriority);
 
 	xTaskCreatePinnedToCore(
     [](void* context){ static_cast<KSHomeKit*>(context)->tKSHomeKit(); },
@@ -108,7 +112,7 @@ void KSHomeKit::setStaticConfig(const char* pIP, const char* pGateway, const cha
 
         // if we have a static configuration, use it
         if (!WiFi.config(_staticIP, _staticGateway, _staticSubnet, _staticDns)) {
-            Serial.println("[KSHomeKit] Failed to configure static IP address.");
+            LOGGER.println("[KSHomeKit] Failed to configure static IP address.");
         }
     }
 }

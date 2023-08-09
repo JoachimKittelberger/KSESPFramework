@@ -1,11 +1,11 @@
 /**
- * @file KSESPFramework.cpp
+ * @file main.cpp
  * 
- * @brief Implementation for Framework KSESPFramework
+ * @brief Testapplication for KSESPFramework
  * 
  * @details
  * 
- * @see https://github.com/JoachimKittelberger/KSESPFramework
+ * @see
  * 
  * @author Joachim Kittelberger <jkittelberger@kibesoft.de>
  * @date 03.08.2023
@@ -42,14 +42,24 @@
  * SOFTWARE.
  */
 
-//#include "KSESPFramework.h"
+#include <Arduino.h>
 
-/*
-void testKSESPFramework() {
-    LOGGER.println("Called: testKSESPFramework()");
+
+//#define KSLIBRARIES_USEALL 1
+// Use Config in platformio_KSESPFrameworkConfig.ini
+#include "KSESPFramework.h"
+#include "KSCredentials.h"
+
+// Buch: Wie schreibt man Libraries
+// https://community.platformio.org/t/writing-libraries-free-ebook/23251
+
+// Just create a normal PlatformIO project with the microcontrollers your library is targeting,
+// then start developing the library in a folder in lib/ with testing code in the src/ folder of the project.
+// If development is done, publish the lib/ in a repo standalone (or pull it in via a git submodule in …
+
+
+void setup() {
 }
 
-void testKSESPFramework1() {
-    LOGGER.println("Called: testKSESPFramework1()");
+void loop() {
 }
-*/

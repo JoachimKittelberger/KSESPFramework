@@ -47,6 +47,7 @@
 
 #include "KSWiFiConnection.h"
 #include "KSEventGroupNetwork/src/KSEventGroupNetwork.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 #define WIFI_CHECK_CONNECTION_STATE_TIME_MS 3000  // 10 second to check for connection status
@@ -85,12 +86,12 @@ TaskHandle_t KSWiFiConnection::createConnection(EventGroupHandle_t *phEventGroup
     _phEventGroupNetwork = phEventGroupNetwork;
 
     int coreID = xPortGetCoreID();
-    //Serial.print("CoreID: ");
-    //Serial.println(coreID);
+    //LOGGER.print("CoreID: ");
+    //LOGGER.println(coreID);
     
     UBaseType_t setupPriority = uxTaskPriorityGet(NULL);
-    //Serial.print("setup: priority = ");
-    //Serial.println(setupPriority);
+    //LOGGER.print("setup: priority = ");
+    //LOGGER.println(setupPriority);
 
     xTaskCreatePinnedToCore(
         [](void* context){ static_cast<KSWiFiConnection*>(context)->tKSWiFiConnection(); },
@@ -115,7 +116,7 @@ void KSWiFiConnection::tKSWiFiConnection()
     if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
         if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_INITIALIZED) == 0) {
             xEventGroupSetBits(*_phEventGroupNetwork, EG_NETWORK_INITIALIZED);
-            //Serial.println(F("[WiFi] Set Event EG_NETWORK_INITIALIZED"));
+            //LOGGER.println(F("[WiFi] Set Event EG_NETWORK_INITIALIZED"));
         }
     }
 
@@ -126,7 +127,7 @@ void KSWiFiConnection::tKSWiFiConnection()
        		if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
                 if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
         			xEventGroupSetBits(*_phEventGroupNetwork, EG_NETWORK_CONNECTED);
-	        		Serial.println(F("[WiFi] Set Event EG_NETWORK_CONNECTED"));
+	        		LOGGER.println(F("[WiFi] Set Event EG_NETWORK_CONNECTED"));
                     
                     // if we have a status LED -> switch on
                     if (_pinLEDWifiStatus && _enableLEDs) {
@@ -143,7 +144,7 @@ void KSWiFiConnection::tKSWiFiConnection()
 		if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
             if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) != 0) {
     			xEventGroupClearBits(*_phEventGroupNetwork, EG_NETWORK_CONNECTED);
-	    		Serial.println(F("[WiFi] Reset Event EG_NETWORK_CONNECTED"));
+	    		LOGGER.println(F("[WiFi] Reset Event EG_NETWORK_CONNECTED"));
 
                 // if we have a status LED -> switch off
                 if (_pinLEDWifiStatus) {
@@ -152,10 +153,10 @@ void KSWiFiConnection::tKSWiFiConnection()
             }
 		}
 
-//		Serial.print(F("[WiFi] Connecting to "));
-//		Serial.println(ssid);
+//		LOGGER.print(F("[WiFi] Connecting to "));
+//		LOGGER.println(ssid);
         if (!_pSSID || !_pPassword) {
-		    Serial.print(F("[WiFi] Warning: No Credentials SSID or Password\n"));
+		    LOGGER.print(F("[WiFi] Warning: No Credentials SSID or Password\n"));
         }
 		WiFi.begin(_pSSID, _pPassword);
 
@@ -166,7 +167,7 @@ void KSWiFiConnection::tKSWiFiConnection()
 		// Keep looping while we're not connected and haven't reached the timeout
 		while (WiFi.status() != WL_CONNECTED && !timedout) {
 				//millis() - startAttemptTime < WIFI_TIMEOUT_MS) {
-//			Serial.print(F("."));
+//			LOGGER.print(F("."));
 
             // if we have a status LED -> toggle
             if (_pinLEDWifiStatus) {
@@ -181,7 +182,7 @@ void KSWiFiConnection::tKSWiFiConnection()
 		// When we couldn't make a WiFi connection (or the timeout expired)
 		// sleep for a while and then retry.
 		if (timedout) {
-//			Serial.println(F("[WiFi] FAILED"));
+//			LOGGER.println(F("[WiFi] FAILED"));
 
             // if we have a status LED -> switch off
             if (_pinLEDWifiStatus) {
@@ -196,7 +197,7 @@ void KSWiFiConnection::tKSWiFiConnection()
 
 		if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
 			xEventGroupSetBits(*_phEventGroupNetwork, EG_NETWORK_CONNECTED);
-			Serial.println(F("[WiFi] Set Event EG_NETWORK_CONNECTED"));
+			LOGGER.println(F("[WiFi] Set Event EG_NETWORK_CONNECTED"));
 
             // if we have a status LED -> switch on
             if (_pinLEDWifiStatus && _enableLEDs) {
@@ -204,10 +205,10 @@ void KSWiFiConnection::tKSWiFiConnection()
             }
 		}
 
-		Serial.print(F("[WiFi] Connected: "));
-		Serial.print(WiFi.localIP().toString());
-        Serial.print(F(" to: "));
-        Serial.println(WiFi.SSID());
+		LOGGER.print(F("[WiFi] Connected: "));
+		LOGGER.print(WiFi.localIP().toString());
+        LOGGER.print(F(" to: "));
+        LOGGER.println(WiFi.SSID());
 	}
 }
 
@@ -219,14 +220,14 @@ bool KSWiFiConnection::waitForInit(TickType_t xTicksToWait) {
 
         // Waiting for Wifi-Connection
         if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-            // Serial.println(F("[WiFi] Wating for Event EG_NETWORK_CONNECTED"));
+            // LOGGER.println(F("[WiFi] Wating for Event EG_NETWORK_CONNECTED"));
         
             EventBits_t eventGroupValue;
             eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, EG_NETWORK_CONNECTED, pdFALSE, pdTRUE, xTicksToWait);
-            // Serial.println(F("[WiFi] Event EG_NETWORK_CONNECTED set"));
+            // LOGGER.println(F("[WiFi] Event EG_NETWORK_CONNECTED set"));
             if ((eventGroupValue & EG_NETWORK_CONNECTED) != EG_NETWORK_CONNECTED) {
 
-                Serial.printf("No Connection to WiFi.\n");
+                LOGGER.printf("No Connection to WiFi.\n");
                 return false;
             }
         }
@@ -248,7 +249,7 @@ void KSWiFiConnection::setStaticConfig(const char* pIP, const char* pGateway, co
 
         // if we have a static configuration, use it
         if (!WiFi.config(_staticIP, _staticGateway, _staticSubnet, _staticDns)) {
-            Serial.println("[WiFi] Failed to configure static IP address.");
+            LOGGER.println("[WiFi] Failed to configure static IP address.");
         }
     }
 }
@@ -262,86 +263,86 @@ void KSWiFiConnection::setStaticConfig(const char* pIP, const char* pGateway, co
 void KSWiFiConnection::WiFiEvent(WiFiEvent_t event) {
     switch (event) {
         case SYSTEM_EVENT_WIFI_READY: 
-            Serial.println("[WiFi] WiFi interface ready");
+            LOGGER.println("[WiFi] WiFi interface ready");
             break;
         case SYSTEM_EVENT_SCAN_DONE:
-            Serial.println("[WiFi] Completed scan for access points");
+            LOGGER.println("[WiFi] Completed scan for access points");
             break;
         case SYSTEM_EVENT_STA_START:
-            Serial.println("[WiFi] WiFi client started");
+            LOGGER.println("[WiFi] WiFi client started");
             break;
         case SYSTEM_EVENT_STA_STOP:
-            Serial.println("[WiFi] WiFi clients stopped");
+            LOGGER.println("[WiFi] WiFi clients stopped");
             break;
         case SYSTEM_EVENT_STA_CONNECTED:
-            Serial.println("[WiFi] Connected to access point");
+            LOGGER.println("[WiFi] Connected to access point");
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
-//            Serial.println("[WiFi] Disconnected from WiFi access point");
+//            LOGGER.println("[WiFi] Disconnected from WiFi access point");
 //      xTimerStop(mqttReconnectTimer, 0); // ensure we don't reconnect to MQTT while reconnecting to Wi-Fi
 //      xTimerStart(wifiReconnectTimer, 0);
             break;
         case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
-            Serial.println("[WiFi] Authentication mode of access point has changed");
+            LOGGER.println("[WiFi] Authentication mode of access point has changed");
             break;
         case SYSTEM_EVENT_STA_GOT_IP:
-            Serial.print("[WiFi] Obtained IP address: ");
-            Serial.println(WiFi.localIP());
+            LOGGER.print("[WiFi] Obtained IP address: ");
+            LOGGER.println(WiFi.localIP());
             //connectToMqtt();
             break;
         case SYSTEM_EVENT_STA_LOST_IP:
-            Serial.println("[WiFi] Lost IP address and IP address is reset to 0");
+            LOGGER.println("[WiFi] Lost IP address and IP address is reset to 0");
             break;
         case SYSTEM_EVENT_STA_WPS_ER_SUCCESS:
-            Serial.println("[WiFi] WiFi Protected Setup (WPS): succeeded in enrollee mode");
+            LOGGER.println("[WiFi] WiFi Protected Setup (WPS): succeeded in enrollee mode");
             break;
         case SYSTEM_EVENT_STA_WPS_ER_FAILED:
-            Serial.println("[WiFi] WiFi Protected Setup (WPS): failed in enrollee mode");
+            LOGGER.println("[WiFi] WiFi Protected Setup (WPS): failed in enrollee mode");
             break;
         case SYSTEM_EVENT_STA_WPS_ER_TIMEOUT:
-            Serial.println("[WiFi] WiFi Protected Setup (WPS): timeout in enrollee mode");
+            LOGGER.println("[WiFi] WiFi Protected Setup (WPS): timeout in enrollee mode");
             break;
         case SYSTEM_EVENT_STA_WPS_ER_PIN:
-            Serial.println("[WiFi] WiFi Protected Setup (WPS): pin code in enrollee mode");
+            LOGGER.println("[WiFi] WiFi Protected Setup (WPS): pin code in enrollee mode");
             break;
         case SYSTEM_EVENT_AP_START:
-            Serial.println("[WiFi] WiFi access point started");
+            LOGGER.println("[WiFi] WiFi access point started");
             break;
         case SYSTEM_EVENT_AP_STOP:
-            Serial.println("[WiFi] WiFi access point  stopped");
+            LOGGER.println("[WiFi] WiFi access point  stopped");
             break;
         case SYSTEM_EVENT_AP_STACONNECTED:
-            Serial.println("[WiFi] Client connected");
+            LOGGER.println("[WiFi] Client connected");
             break;
         case SYSTEM_EVENT_AP_STADISCONNECTED:
-            Serial.println("[WiFi] Client disconnected");
+            LOGGER.println("[WiFi] Client disconnected");
             break;
         case SYSTEM_EVENT_AP_STAIPASSIGNED:
-            Serial.println("[WiFi] Assigned IP address to client");
+            LOGGER.println("[WiFi] Assigned IP address to client");
             break;
         case SYSTEM_EVENT_AP_PROBEREQRECVED:
-            Serial.println("[WiFi] Received probe request");
+            LOGGER.println("[WiFi] Received probe request");
             break;
         case SYSTEM_EVENT_GOT_IP6:
-            Serial.println("[WiFi] IPv6 is preferred");
+            LOGGER.println("[WiFi] IPv6 is preferred");
             break;
         case SYSTEM_EVENT_ETH_START:
-            Serial.println("[WiFi] Ethernet started");
+            LOGGER.println("[WiFi] Ethernet started");
             break;
         case SYSTEM_EVENT_ETH_STOP:
-            Serial.println("[WiFi] Ethernet stopped");
+            LOGGER.println("[WiFi] Ethernet stopped");
             break;
         case SYSTEM_EVENT_ETH_CONNECTED:
-            Serial.println("[WiFi] Ethernet connected");
+            LOGGER.println("[WiFi] Ethernet connected");
             break;
         case SYSTEM_EVENT_ETH_DISCONNECTED:
-            Serial.println("[WiFi] Ethernet disconnected");
+            LOGGER.println("[WiFi] Ethernet disconnected");
             break;
         case SYSTEM_EVENT_ETH_GOT_IP:
-            Serial.println("[WiFi] Obtained IP address");
+            LOGGER.println("[WiFi] Obtained IP address");
             break;
         default:
-            Serial.printf("[WiFi] event: %d\n", event);
+            LOGGER.printf("[WiFi] event: %d\n", event);
             break;
     }
 }

@@ -46,6 +46,7 @@
 
 #include "KSTelnetServer.h"
 #include "KSEventGroupNetwork/src/KSEventGroupNetwork.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 
@@ -64,12 +65,12 @@ TaskHandle_t KSTelnetServer::createConnection(EventGroupHandle_t *phEventGroupNe
 	_phEventGroupNetwork = phEventGroupNetwork;
  
 	int coreID = xPortGetCoreID();
-	//Serial.print(F("CoreID: "));
-	//Serial.println(coreID);
+	//LOGGER.print(F("CoreID: "));
+	//LOGGER.println(coreID);
 	
 	UBaseType_t setupPriority = uxTaskPriorityGet(NULL);
-	//Serial.print(F("setup: priority = "));
-	//Serial.println(setupPriority);
+	//LOGGER.print(F("setup: priority = "));
+	//LOGGER.println(setupPriority);
 
 	xTaskCreatePinnedToCore(
     	[](void* context){ static_cast<KSTelnetServer*>(context)->tKSTelnetServer(); },
@@ -92,10 +93,10 @@ void KSTelnetServer::tKSTelnetServer()
     // Wenn Connection-Bit noch nicht gesetzt, dann das erste Mal warten.
     if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
         if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-            //Serial.println(F("[telnet] Wating for Event EG_NETWORK_CONNECTED"));
+            //LOGGER.println(F("[telnet] Wating for Event EG_NETWORK_CONNECTED"));
             EventBits_t eventGroupValue;
             eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-            //Serial.println(F("[telnet] Event EG_NETWORK_CONNECTED set"));
+            //LOGGER.println(F("[telnet] Event EG_NETWORK_CONNECTED set"));
         }
     }
             
@@ -109,10 +110,10 @@ void KSTelnetServer::tKSTelnetServer()
         // Wenn Connection-Bit noch nicht gesetzt, dann das erste Mal warten.
         if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
             if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-                //Serial.println(F("[telnet] Wating for Event EG_NETWORK_CONNECTED"));
+                //LOGGER.println(F("[telnet] Wating for Event EG_NETWORK_CONNECTED"));
                 EventBits_t eventGroupValue;
                 eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-                //Serial.println(F("[telnet] Event EG_NETWORK_CONNECTED set"));
+                //LOGGER.println(F("[telnet] Event EG_NETWORK_CONNECTED set"));
             }
         }
 
@@ -173,7 +174,7 @@ void KSTelnetServer::tKSTelnetServer()
             // handle the commands
             if (_handleDefaultCommands) {
                	if (strcasecmp(_szTelnetCmd, "Restart") == 0) {
-                    //Serial.println("[telnet] [R] Restart ESP");
+                    //LOGGER.println("[telnet] [R] Restart ESP");
                     this->println("Restarting ...");
                     this->flush();
                     this->stop();
@@ -181,25 +182,25 @@ void KSTelnetServer::tKSTelnetServer()
                     ESP.restart();
                 }
                	else if (strcasecmp(_szTelnetCmd, "Quit") == 0) {
-                    //Serial.println("[telnet] [Q] Quit");
+                    //LOGGER.println("[telnet] [Q] Quit");
                     this->println("bye bye");
                     this->flush();
                     this->stop();
                     //this->disconnectClient();
                 }
                	else if (strcasecmp(_szTelnetCmd, "StartCyclic") == 0) {
-                    //Serial.println("[telnet] [G] Go send cyclic Data");
+                    //LOGGER.println("[telnet] [G] Go send cyclic Data");
                     this->println("[telnet] Start sending cyclic data");
                     _sendCyclicData = true;
                 }
                	else if (strcasecmp(_szTelnetCmd, "StopCyclic") == 0) {
-                    //Serial.println("[telnet] [S] Stop send cyclic Data");
+                    //LOGGER.println("[telnet] [S] Stop send cyclic Data");
                     this->println("[telnet] Stop sending cyclic data");
                     _sendCyclicData = false;
                 }
 
 //               	else if (strcmp(_szTelnetCmd, "Info") == 0) {
-//                    Serial.println("Telnet: [I] Get Info");
+//                    LOGGER.println("Telnet: [I] Get Info");
 //                    this->printf("Project: %s Version: %s\n", PROJECT_NAME, SW_VERSION);
 //               }
                 else {

@@ -43,9 +43,9 @@
 
 #if defined USE_KSBattery || defined KSLIBRARIES_USEALL    // include File in Build only if it ist defined to use it
 
-
 #include "KSBattery.h"
 
+#include "KSLogger/src/KSLogger.h"
 
 KSBattery::KSBattery(adc1_channel_t channel, float offset) {
     _channel = channel;
@@ -78,13 +78,13 @@ float KSBattery::getVoltage() {
 #ifdef DEBUG_OUTPUT
 		switch(val_type) {
 		case ESP_ADC_CAL_VAL_EFUSE_TP:
-			Serial.printf("Characterized using Two Point Value --> coeff_a:%umV coeff_b:%umV\n", adc_chars.coeff_a, adc_chars.coeff_b);
+			LOGGER.printf("Characterized using Two Point Value --> coeff_a:%umV coeff_b:%umV\n", adc_chars.coeff_a, adc_chars.coeff_b);
 			break;
 		case ESP_ADC_CAL_VAL_EFUSE_VREF:
-			Serial.printf("Characterized using eFuse Vref (%d mV)\r\n", adc_chars.vref);
+			LOGGER.printf("Characterized using eFuse Vref (%d mV)\r\n", adc_chars.vref);
 			break;
 		default:
-			Serial.printf("Characterized using Default Vref (%d mV)\r\n", 1100);
+			LOGGER.printf("Characterized using Default Vref (%d mV)\r\n", 1100);
 		}
 #endif
 	//}

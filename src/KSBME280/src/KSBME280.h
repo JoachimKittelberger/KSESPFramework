@@ -89,7 +89,7 @@ friend class KSBME280;
                 //    00      'Sleep'  mode
                 //  01 / 10   'Forced' mode, use either '01' or '10'
                 //    11      'Normal' mode
-                Serial.println("BME280 to Sleep mode...");
+                LOGGER.println("BME280 to Sleep mode...");
                 _pWire->beginTransmission(_I2Caddr);
                 _pWire->requestFrom(_I2Caddr, 1);
                 uint8_t value = _pWire->read();
@@ -115,7 +115,7 @@ friend class KSBME280;
             _bme680.power_mode = BME680_SLEEP_MODE;
 
             if (bme680_set_sensor_mode(&_bme680) != BME680_OK) {
-                Serial.println("[KSBsec]: Error bme680_set_sensor_mode()");
+                LOGGER.println("[KSBsec]: Error bme680_set_sensor_mode()");
                 return false;
             }
 */
@@ -124,7 +124,7 @@ friend class KSBME280;
 /*
     private:    
         static int8_t i2cRead(uint8_t devId, uint8_t regAddr, uint8_t *regData, uint16_t length) {
-            //Serial.println("i2cRead");
+            //LOGGER.println("i2cRead");
             uint8_t retVal = 0;
             if (_pcsI2C) _pcsI2C->EnterCriticalSection();
             retVal = Bsec::i2cRead(devId, regAddr, regData, length);
@@ -134,7 +134,7 @@ friend class KSBME280;
 
     
         static int8_t i2cWrite(uint8_t devId, uint8_t regAddr, uint8_t *regData, uint16_t length) {
-            //Serial.println("i2cWrite");
+            //LOGGER.println("i2cWrite");
             uint8_t retVal = 0;
             if (_pcsI2C) _pcsI2C->EnterCriticalSection();
             retVal = Bsec::i2cWrite(devId, regAddr, regData, length);

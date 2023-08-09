@@ -122,34 +122,7 @@ class KSStratoMailClient {
         }
         ~KSStratoMailClient() {}
 
-        bool sendMail(KSStratoMailMessage* pMessage) { 
-            bool bRetVal = true;
-            
-            // Set the callback function to get the sending results
- //           _smtp.callback(smtpCallback);
-            //_smtp.callback(smtpCallback);
-            // connect the callback function. Wird benötigt, damit eine member-function als callback verwendet werden kann. Sonst muss diese Static definiert sein.
-            //std::function<void(SMTP_Status)> memPtr = NULL;
-	        //auto memPtr = std::bind(&KSStratoMailClient::smtpCallback, this, std::placeholders::_1);
-            //_smtp.callback(memPtr);
-
-            
-            if (!_smtp.connect(&_session))
-                return false;
-
-            // Start sending Email and close the session
-            if (!MailClient.sendMail(&_smtp, pMessage->getSMTPMessagePtr())) {
-                Serial.println("Error sending Email, " + _smtp.errorReason());
-                bRetVal = false;
-            }
-            //to clear sending result log. If we have no callback-function we have to call it here otherwise in the callback functions
-            _smtp.sendingResult.clear();
-
-            //ESP_MAIL_PRINTF("Free Heap: %d\n", MailClient.getFreeHeap());
-            return bRetVal;
-        }
-        
-
+        bool sendMail(KSStratoMailMessage* pMessage);
         //void smtpCallback(SMTP_Status status);
 
     private:

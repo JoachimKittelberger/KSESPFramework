@@ -49,6 +49,7 @@
 #include <ArduinoJson.h>
 
 #include "KSEventGroupNetwork/src/KSEventGroupNetwork.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 
@@ -74,12 +75,12 @@ TaskHandle_t KSAutoUpdate::createConnection(EventGroupHandle_t *phEventGroupNetw
 	_phEventGroupNetwork = phEventGroupNetwork;
 
 	int coreID = xPortGetCoreID();
-	//Serial.print(F("CoreID: "));
-	//Serial.println(coreID);
+	//LOGGER.print(F("CoreID: "));
+	//LOGGER.println(coreID);
 	
 	UBaseType_t setupPriority = uxTaskPriorityGet(NULL);
-	//Serial.print(F("setup: priority = "));
-	//Serial.println(setupPriority);
+	//LOGGER.print(F("setup: priority = "));
+	//LOGGER.println(setupPriority);
 
 	xTaskCreatePinnedToCore(
     	[](void* context){ static_cast<KSAutoUpdate*>(context)->tKSAutoUpdate(); },
@@ -102,10 +103,10 @@ void KSAutoUpdate::tKSAutoUpdate()
     // Wenn Connection-Bit noch nicht gesetzt, dann das erste Mal warten.
     if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
         if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-            //Serial.println(F("[ota] Wating for Event EG_NETWORK_CONNECTED"));
+            //LOGGER.println(F("[ota] Wating for Event EG_NETWORK_CONNECTED"));
             EventBits_t eventGroupValue;
             eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-            //Serial.println(F("[ota] Event EG_NETWORK_CONNECTED set"));
+            //LOGGER.println(F("[ota] Event EG_NETWORK_CONNECTED set"));
         }
     }
             
@@ -118,10 +119,10 @@ void KSAutoUpdate::tKSAutoUpdate()
         // Wenn Connection-Bit noch nicht gesetzt, dann das erste Mal warten.
         if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
             if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-                //Serial.println(F("[ota] Wating for Event EG_NETWORK_CONNECTED"));
+                //LOGGER.println(F("[ota] Wating for Event EG_NETWORK_CONNECTED"));
                 EventBits_t eventGroupValue;
                 eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-                //Serial.println(F("[ota] Event EG_NETWORK_CONNECTED set"));
+                //LOGGER.println(F("[ota] Event EG_NETWORK_CONNECTED set"));
             }
         }
 
@@ -176,17 +177,17 @@ void KSAutoUpdate::checkForDeepSleepState() {
     int httpResponseCode = httpclient.GET();
 
     if (httpResponseCode <= 0) {
-        Serial.print(F("Error code: "));
-        Serial.println(httpResponseCode);
-        Serial.println(F("Response:"));
-        Serial.println(httpclient.getString());
+        LOGGER.print(F("Error code: "));
+        LOGGER.println(httpResponseCode);
+        LOGGER.println(F("Response:"));
+        LOGGER.println(httpclient.getString());
     } else {
-        //Serial.print(F("HTTP Response code: "));
-        //Serial.println(httpResponseCode);
+        //LOGGER.print(F("HTTP Response code: "));
+        //LOGGER.println(httpResponseCode);
  
         String response = httpclient.getString();
-        //Serial.println(F("Response:"));
-        //Serial.println(response);
+        //LOGGER.println(F("Response:"));
+        //LOGGER.println(response);
 
         //const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
         const size_t capacity = 1024;    
@@ -194,8 +195,8 @@ void KSAutoUpdate::checkForDeepSleepState() {
     
         DeserializationError error = deserializeJson(doc, response);
         if (error) {
-            Serial.print(F("Error: DeserializeJson(KSAutoUpdateState.json) failed: "));
-            Serial.println(error.f_str());
+            LOGGER.print(F("Error: DeserializeJson(KSAutoUpdateState.json) failed: "));
+            LOGGER.println(error.f_str());
         } else {
             for (JsonObject project : doc["Projects"].as<JsonArray>()) {
 
@@ -234,11 +235,11 @@ void KSAutoUpdate::checkForDeepSleepState() {
                                     semver_parse_version(project_Version, &newVersion);
 
                                     int verCompare = semver_compare(newVersion, currentVersion);
-                                    //Serial.printf("Compare Version new: %s, current: %s, Ergebnis: %d\n", SW_VERSION, project_Version, verCompare);
+                                    //LOGGER.printf("Compare Version new: %s, current: %s, Ergebnis: %d\n", SW_VERSION, project_Version, verCompare);
 
                                     if (verCompare < 1) {
                                         // Wenn newVersion not greater then SW_VERSION, do nothing more
-                                        //Serial.printf("New Version not greater then existing Version\n");
+                                        //LOGGER.printf("New Version not greater then existing Version\n");
                                         continue;
                                     }
                                 }
@@ -280,17 +281,17 @@ void KSAutoUpdate::checkForNewUpdate() {
     int httpResponseCode = httpclient.GET();
 
     if (httpResponseCode <= 0) {
-        Serial.print(F("Error code: "));
-        Serial.println(httpResponseCode);
-        Serial.println(F("Response:"));
-        Serial.println(httpclient.getString());
+        LOGGER.print(F("Error code: "));
+        LOGGER.println(httpResponseCode);
+        LOGGER.println(F("Response:"));
+        LOGGER.println(httpclient.getString());
     } else {
-        //Serial.print(F("HTTP Response code: "));
-        //Serial.println(httpResponseCode);
+        //LOGGER.print(F("HTTP Response code: "));
+        //LOGGER.println(httpResponseCode);
  
         String response = httpclient.getString();
-        //Serial.print(F("Response: "));
-        //Serial.println(response);
+        //LOGGER.print(F("Response: "));
+        //LOGGER.println(response);
 
 
         //const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
@@ -299,8 +300,8 @@ void KSAutoUpdate::checkForNewUpdate() {
     
         DeserializationError error = deserializeJson(doc, response);
         if (error) {
-            Serial.print(F("Error: DeserializeJson(KSAutoUpdateState.json) failed: "));
-            Serial.println(error.f_str());
+            LOGGER.print(F("Error: DeserializeJson(KSAutoUpdateState.json) failed: "));
+            LOGGER.println(error.f_str());
         } else {
             for (JsonObject project : doc["Projects"].as<JsonArray>()) {
 
@@ -314,13 +315,13 @@ void KSAutoUpdate::checkForNewUpdate() {
                         if (project.containsKey("DisableDeepSleep")) {
                             bool disableDeepSleep = false;      
                             const char* project_DisableDeepSleep = project["DisableDeepSleep"]; // "0", "1"
-                            //if (!project_DisableDeepSleep) Serial.println("project_DisableDeepSleep = null");
+                            //if (!project_DisableDeepSleep) LOGGER.println("project_DisableDeepSleep = null");
                             if (project_DisableDeepSleep) {
                                 if (strcasecmp(project_DisableDeepSleep, "1") == 0) {
                                 //if (project_DisableDeepSleep == "1") {
                                     disableDeepSleep = true;
                                 }
-                                //Serial.printf("DisableDeepSleep %s\n", disableDeepSleep ? "true" : "false");
+                                //LOGGER.printf("DisableDeepSleep %s\n", disableDeepSleep ? "true" : "false");
                                 if (onChangeDeepSleepListener) {
                                     onChangeDeepSleepListener(disableDeepSleep);
                                 }
@@ -331,19 +332,19 @@ void KSAutoUpdate::checkForNewUpdate() {
                         if (project.containsKey("UpdateAvailable")) {
                             bool updateAvaiable = false;
                             const char* project_Update = project["UpdateAvailable"]; // "0", "1"
-                            //if (!project_Update) Serial.println("project_Update = null");
+                            //if (!project_Update) LOGGER.println("project_Update = null");
                             if (project_Update) {
                                 if (strcasecmp(project_Update, "1") == 0) {
                                 //if (project_Update == "1") {
                                     updateAvaiable = true;
                                 }
                             }
-                            //Serial.printf("UpdateAvailable %s\n", updateAvaiable ? "true" : "false");
+                            //LOGGER.printf("UpdateAvailable %s\n", updateAvaiable ? "true" : "false");
 
                             const char* project_Version = project["Version"]; // "1.1.2", "1.1.4"
-                            //if (project_Version) Serial.printf("project_Version %s\n", project_Version);
+                            //if (project_Version) LOGGER.printf("project_Version %s\n", project_Version);
                             const char* project_binfile = project["Binfile"]; // "UpdateTestV1.02.PWD.ino.esp32.bin"
-                            //if (project_binfile) Serial.printf("project_binfile %s\n", project_binfile);
+                            //if (project_binfile) LOGGER.printf("project_binfile %s\n", project_binfile);
 
                             if (updateAvaiable) {
                                 // test if new Version > current version
@@ -360,11 +361,11 @@ void KSAutoUpdate::checkForNewUpdate() {
                                     semver_parse_version(project_Version, &newVersion);
 
                                     int verCompare = semver_compare(newVersion, currentVersion);
-                                    //Serial.printf("Compare Version new: %s, current: %s, Ergebnis: %d\n", SW_VERSION, project_Version, verCompare);
+                                    //LOGGER.printf("Compare Version new: %s, current: %s, Ergebnis: %d\n", SW_VERSION, project_Version, verCompare);
 
                                     if (verCompare < 1) {
                                         // Wenn newVersion not greater then SW_VERSION, do nothing more
-                                        //Serial.printf("New Version not greater then existing Version\n");
+                                        //LOGGER.printf("New Version not greater then existing Version\n");
                                         continue;
                                     }
                                 }
@@ -407,10 +408,10 @@ void KSAutoUpdate::updateStatus() {
  
     if (httpResponseCode > 0) {
 		String response = httpclient.getString();                       
-		Serial.printf("Response Code %d\n", httpResponseCode);   
-		Serial.printf("Response: %s\n", response.c_str());
+		LOGGER.printf("Response Code %d\n", httpResponseCode);   
+		LOGGER.printf("Response: %s\n", response.c_str());
     } else {
-      	Serial.printf("Error (%d) occurred while sending HTTP POST: %s\n", httpResponseCode, httpclient.errorToString(httpResponseCode).c_str());
+      	LOGGER.printf("Error (%d) occurred while sending HTTP POST: %s\n", httpResponseCode, httpclient.errorToString(httpResponseCode).c_str());
     }
     
     httpclient.end();

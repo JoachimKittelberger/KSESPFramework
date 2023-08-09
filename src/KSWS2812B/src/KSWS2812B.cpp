@@ -90,7 +90,7 @@ TaskHandle_t KSWS2812B::create() {
 
 
 void KSWS2812B::tKSWS2812B() {
-	Serial.println("created Task tKSWS2812B");
+	LOGGER.println("created Task tKSWS2812B");
     init();
 
 	for (;;) {

@@ -45,6 +45,8 @@
 
 #include "KSAppInfo.h"
 
+#include "KSLogger/src/KSLogger.h"
+
 
 String KSAppInfo::listESPStateJSON() {
 
@@ -88,26 +90,26 @@ void TelnetSpy::setWelcomeMsg(char* msg) {
 }
 
 
-Serial.printf("FireBeetle active\r\n" \
+LOGGER.printf("FireBeetle active\r\n" \
                 " Compiled at: " __DATE__ " - " __TIME__ "\r\n" \
                 " ESP-IDF: %s\r\n", esp_get_idf_version());
 
 
 
-Serial.printf("Sketch size: %u\n", ESP.getSketchSize());
-  Serial.printf("Free size: %u\n", ESP.getFreeSketchSpace());
+LOGGER.printf("Sketch size: %u\n", ESP.getSketchSize());
+  LOGGER.printf("Free size: %u\n", ESP.getFreeSketchSpace());
 TelnetClient[i].print("Free Heap RAM: ");
         TelnetClient[i].println(ESP.getFreeHeap());
 
 void printSketchInfo(char const* currentProject) {
-	Serial.printf("\n\nSketchname: %s\nBuild: %s\t\tIDE: %d.%d.%d\nESP-SDK: %s\n",
+	LOGGER.printf("\n\nSketchname: %s\nBuild: %s\t\tIDE: %d.%d.%d\nESP-SDK: %s\n",
 					(currentProject), (__TIMESTAMP__), ARDUINO / 10000, ARDUINO % 10000 / 100, ARDUINO % 100 / 10 ? ARDUINO % 100 : ARDUINO % 10, String(ESP.getSdkVersion()).c_str());
 }
 
 
 chipid=ESP.getEfuseMac();//The chip ID is essentially its MAC address(length:6bytes)
-Serial.printf("ESP32 Chip ID = %04X",(uint16_t)(chipid>>32));//print High 2 bytes
-Serial.printf("%08X\n",(uint32_t)chipid);//print Low 4bytes.
+LOGGER.printf("ESP32 Chip ID = %04X",(uint16_t)(chipid>>32));//print High 2 bytes
+LOGGER.printf("%08X\n",(uint32_t)chipid);//print Low 4bytes.
 
 
 
@@ -124,7 +126,7 @@ void systeem() {
   //add leading zeros
   byte idegap = 8 - ideIDs.length();
   ideIDs.toUpperCase();
-  //Serial.println(idegap);
+  //LOGGER.println(idegap);
   for (i = 0; i < idegap; i++)
   {
     ideIDs = "0" + ideIDs;
@@ -153,7 +155,7 @@ void ICACHE_FLASH_ATTR sendStatus() {
 	FSInfo fsinfo;
 	if (!SPIFFS.info(fsinfo)) {
 #ifdef DEBUG
-		Serial.print(F("[ WARN ] Error getting info on SPIFFS"));
+		LOGGER.print(F("[ WARN ] Error getting info on SPIFFS"));
 #endif
 	}
   DynamicJsonBuffer jsonBuffer;
@@ -205,18 +207,18 @@ void ICACHE_FLASH_ATTR sendStatus() {
 
 
 
-  //Serial.printf("Flash real id:   %08X\n", ESP.getFlashChipId());
-  //Serial.printf("Flash real size: %u bytes\n\n", realSize);
+  //LOGGER.printf("Flash real id:   %08X\n", ESP.getFlashChipId());
+  //LOGGER.printf("Flash real size: %u bytes\n\n", realSize);
 
-  //Serial.printf("Flash ide  size: %u bytes\n", ideSize);
-  //Serial.printf("Flash ide speed: %u Hz\n", ESP.getFlashChipSpeed());
-  //Serial.printf("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
+  //LOGGER.printf("Flash ide  size: %u bytes\n", ideSize);
+  //LOGGER.printf("Flash ide speed: %u Hz\n", ESP.getFlashChipSpeed());
+  //LOGGER.printf("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
   String idemode = ("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
   client.publish("home/template/stat/idemode", idemode.c_str());
   if (ideSize != realSize) {
-    //Serial.println("Flash Chip configuration wrong!\n");
+    //LOGGER.println("Flash Chip configuration wrong!\n");
   } else {
-    //Serial.println("Flash Chip configuration ok.\n");
+    //LOGGER.println("Flash Chip configuration ok.\n");
   }
 
 

@@ -44,8 +44,9 @@
 
 #if defined USE_KSCCS811 || defined KSLIBRARIES_USEALL    // include File in Build only if it ist defined to use it
 
-
 #include "KSCCS811.h"
+
+#include "KSLogger/src/KSLogger.h"
 
 
 KSCCS811::KSCCS811(KSCriticalSection* pcsI2C) {
@@ -57,7 +58,7 @@ void KSCCS811::init() {
     if (_pcsI2C) _pcsI2C->EnterCriticalSection();
 
 	if (!_ccs811.begin()) {
-		Serial.println(F("[KSCCS811] Failed to start CCS811 sensor!"));
+		LOGGER.println(F("[KSCCS811] Failed to start CCS811 sensor!"));
 		// TODO: hier eine Error-LED angehen lassen? Oder in Thread nochmals versuchen, bis es klappt
 	}
 	while (!_ccs811.available());	// Wait for the sensor to be ready
@@ -80,12 +81,12 @@ int KSCCS811::readeCO2() {
 			retVal = _ccs811.geteCO2();
 		}
 		else {
-			Serial.printf("[KSCCS811] ERROR!  %d Reading CCS811\n", retVal);
+			LOGGER.printf("[KSCCS811] ERROR!  %d Reading CCS811\n", retVal);
             retVal = -1;
 		}
 	}
 	else {
-		Serial.println(F("[KSCCS811] WARNING! CCS811 new data not available"));
+		LOGGER.println(F("[KSCCS811] WARNING! CCS811 new data not available"));
 	}
     if (_pcsI2C) _pcsI2C->LeaveCriticalSection();
     return retVal;
@@ -103,12 +104,12 @@ int KSCCS811::readTVOC() {
 			retVal = _ccs811.getTVOC();
 		}
 		else {
-			Serial.printf("[KSCCS811] ERROR!  %d Reading CCS811\n", retVal);
+			LOGGER.printf("[KSCCS811] ERROR!  %d Reading CCS811\n", retVal);
             retVal = -1;
 		}
 	}
 	else {
-		Serial.println(F("[KSCCS811] WARNING! CCS811 new data not available"));
+		LOGGER.println(F("[KSCCS811] WARNING! CCS811 new data not available"));
 	}
     if (_pcsI2C) _pcsI2C->LeaveCriticalSection();
     return retVal;
@@ -134,12 +135,12 @@ bool KSCCS811::read(int* peCO2, int* pTVOC) {
             }
 		}
 		else {
-			Serial.printf("[KSCCS811] ERROR!  %d Reading CCS811\n", retVal);
+			LOGGER.printf("[KSCCS811] ERROR!  %d Reading CCS811\n", retVal);
             bRetVal = false;
 		}
 	}
 	else {
-		Serial.println(F("[KSCCS811] WARNING! CCS811 new data not available"));
+		LOGGER.println(F("[KSCCS811] WARNING! CCS811 new data not available"));
 	}
     if (_pcsI2C) _pcsI2C->LeaveCriticalSection();
     return bRetVal;

@@ -45,6 +45,7 @@
 #if defined USE_KSCriticalSection || defined KSLIBRARIES_USEALL     // include File in Build only if it ist defined to use it
 
 #include "KSCriticalSection.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 
@@ -65,22 +66,22 @@ void KSCriticalSection::EnterCriticalSection() {
     if (_hEventGroup) {
 		// prüfen, ob Zeichnen zur Verfügung steht, ansonsten warten, bis frei
         if ((xEventGroupGetBits(_hEventGroup) & KSCRITICALSECTION_FREE) == 0) {
-            //Serial.println(F("[KSCriticalSection] Wating for Event KSCRITICALSECTION_FREE"));
+            //LOGGER.println(F("[KSCriticalSection] Wating for Event KSCRITICALSECTION_FREE"));
             EventBits_t eventGroupValue;
             eventGroupValue = xEventGroupWaitBits(_hEventGroup, KSCRITICALSECTION_FREE, pdFALSE, pdTRUE, portMAX_DELAY);
 //            eventGroupValue = xEventGroupWaitBits(_hEventGroup, KSCRITICALSECTION_FREE, pdFALSE, pdTRUE, pdMS_TO_TICKS(2000));
             // Check for timeout
             if ((eventGroupValue & KSCRITICALSECTION_FREE) == 0) {
-                Serial.print(F("[KSCriticalSection] Event KSCRITICALSECTION_FREE timedout (2s) in task: "));
-                Serial.println(String(pcTaskGetTaskName(NULL)).c_str());
+                LOGGER.print(F("[KSCriticalSection] Event KSCRITICALSECTION_FREE timedout (2s) in task: "));
+                LOGGER.println(String(pcTaskGetTaskName(NULL)).c_str());
             }
-            //Serial.println(F("[KSCriticalSection] Event KSCRITICALSECTION_FREE set"));
+            //LOGGER.println(F("[KSCriticalSection] Event KSCRITICALSECTION_FREE set"));
         }
 
 		// Enter Event
         if ((xEventGroupGetBits(_hEventGroup) & KSCRITICALSECTION_FREE) != 0) {
             xEventGroupClearBits(_hEventGroup, KSCRITICALSECTION_FREE);
-            //Serial.println(F("[KSCriticalSection] Enter Critical Section"));
+            //LOGGER.println(F("[KSCriticalSection] Enter Critical Section"));
         }
     }
 }
@@ -93,7 +94,7 @@ void KSCriticalSection::LeaveCriticalSection() {
     if (_hEventGroup) {
         if ((xEventGroupGetBits(_hEventGroup) & KSCRITICALSECTION_FREE) == 0) {
             xEventGroupSetBits(_hEventGroup, KSCRITICALSECTION_FREE);
-            //Serial.println(F("[KSCriticalSection] Release Critical Section"));
+            //LOGGER.println(F("[KSCriticalSection] Release Critical Section"));
         }
     }
 }

@@ -54,6 +54,7 @@
 #if defined USE_KSBME680BSec || defined KSLIBRARIES_USEALL    // include File in Build only if it ist defined to use it
 
 #include "KSBME680BSec.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 KSCriticalSection* KSBsec::_pcsI2C = NULL;
@@ -88,10 +89,10 @@ bool KSBME680BSec::init() {
     _isInitialized = status;
     
     if (!status) {
-        Serial.println("Error: Could not find a valid BME680 sensor, check wiring!");
+        LOGGER.println("Error: Could not find a valid BME680 sensor, check wiring!");
     } else {
         String output = "\nBME680 BSEC library version " + String(iaqSensor.version.major) + "." + String(iaqSensor.version.minor) + "." + String(iaqSensor.version.major_bugfix) + "." + String(iaqSensor.version.minor_bugfix);
-        Serial.println(output);
+        LOGGER.println(output);
 
         //iaqSensor.updateSubscription(sensorList, sizeof(sensorList) / sizeof(sensorList[0]), BSEC_SAMPLE_RATE_LP);
         iaqSensor.updateSubscription(sensorList, 10, BSEC_SAMPLE_RATE_LP);
@@ -116,7 +117,7 @@ bool KSBME680BSec::checkIaqSensorStatus()
         } else {
             output = "BSEC warning code : " + String(iaqSensor.bsecStatus);
         }
-        Serial.println(output);
+        LOGGER.println(output);
     }
 
     if (iaqSensor.bme68xStatus != BME68X_OK) {
@@ -127,7 +128,7 @@ bool KSBME680BSec::checkIaqSensorStatus()
         } else {
             output = "BME68x warning code : " + String(iaqSensor.bme68xStatus);
         }
-        Serial.println(output);
+        LOGGER.println(output);
     }
     return bRetVal;
 }
@@ -233,7 +234,7 @@ bool KSBME680BSec::read(float* pTemperature, float* pHumidity, float* pPressure,
     if (pTemperature) {
         *pTemperature = this->readTemperature();
         if (isnan(*pTemperature)) {
-    		Serial.println(F("Failed to read from BME sensor!"));
+    		LOGGER.println(F("Failed to read from BME sensor!"));
             bRetVal = false;
         }
     }
@@ -241,7 +242,7 @@ bool KSBME680BSec::read(float* pTemperature, float* pHumidity, float* pPressure,
     if (pHumidity) {
         *pHumidity = this->readHumidity();
         if (isnan(*pHumidity)) {
-    		Serial.println(F("Failed to read from BME sensor!"));
+    		LOGGER.println(F("Failed to read from BME sensor!"));
             bRetVal = false;
         }
     }
@@ -249,7 +250,7 @@ bool KSBME680BSec::read(float* pTemperature, float* pHumidity, float* pPressure,
     if (pPressure) {
         *pPressure = this->readPressure();
         if (isnan(*pPressure)) {
-    		Serial.println(F("Failed to read from BME sensor!"));
+    		LOGGER.println(F("Failed to read from BME sensor!"));
             bRetVal = false;
         }
     }
@@ -257,7 +258,7 @@ bool KSBME680BSec::read(float* pTemperature, float* pHumidity, float* pPressure,
     if (pAltitude) {
         *pAltitude = this->readAltitude();
         if (isnan(*pAltitude)) {
-    		Serial.println(F("Failed to read from BME sensor!"));
+    		LOGGER.println(F("Failed to read from BME sensor!"));
             bRetVal = false;
         }
     }
@@ -265,7 +266,7 @@ bool KSBME680BSec::read(float* pTemperature, float* pHumidity, float* pPressure,
     if (pGas) {
         *pGas = this->readGas();
         if ((*pGas) == 0) {
-    		Serial.println(F("Failed to read from BME sensor!"));
+    		LOGGER.println(F("Failed to read from BME sensor!"));
             bRetVal = false;
         }
     }
@@ -306,12 +307,12 @@ bool KSBME680::read(int* peCO2, int* pTVOC) {
             }
 		}
 		else {
-			Serial.printf("ERROR!  %d Reading CCS811\n", retVal);
+			LOGGER.printf("ERROR!  %d Reading CCS811\n", retVal);
             bRetVal = false;
 		}
 	}
 	else {
-		Serial.println(F("WARNING! CCS811 new data not available"));
+		LOGGER.println(F("WARNING! CCS811 new data not available"));
 	}
     return bRetVal;
 }

@@ -45,6 +45,7 @@
 
 #include "KSButton.h"
 
+#include "KSLogger/src/KSLogger.h"
 
 
 
@@ -112,7 +113,7 @@ void taskButtonRead( void * parameter)
 {
 	String taskMessage = "Debounced ButtonRead Task running on core ";
 	taskMessage = taskMessage + xPortGetCoreID();
-	Serial.println(taskMessage);
+	LOGGER.println(taskMessage);
 
 	// set up button Pin
 	pinMode (_pin, INPUT);
@@ -145,14 +146,14 @@ void taskButtonRead( void * parameter)
 		
 		if (currentState == LOW)
 		{
-			Serial.printf("Button is pressed and debounced, current tick=%d\n", millis());
+			LOGGER.printf("Button is pressed and debounced, current tick=%d\n", millis());
 		}
 		else
 		{
-			Serial.printf("Button is released and debounced, current tick=%d\n", millis());
+			LOGGER.printf("Button is released and debounced, current tick=%d\n", millis());
 		}
 		
-		Serial.printf("Button Interrupt Triggered %d times, current State=%u, time since last trigger %dms\n", save, currentState, millis() - saveDebounceTimeout);
+		LOGGER.printf("Button Interrupt Triggered %d times, current State=%u, time since last trigger %dms\n", save, currentState, millis() - saveDebounceTimeout);
 		
 		portENTER_CRITICAL_ISR(&mux); // can't change it unless, atomic - Critical section
 		numberOfButtonInterrupts = 0; // acknowledge keypress and reset interrupt counter
@@ -180,13 +181,13 @@ volatile unsigned int delayTime = 100;
 #define pin 3
 void setup() {
   pinMode(pin, INPUT_PULLUP);
-  Serial.begin(115200);
-  Serial.println(F("Start: Light Weight depounce blink without delay code"));
+  LOGGER.begin(115200);
+  LOGGER.println(F("Start: Light Weight depounce blink without delay code"));
   attachInterrupt(digitalPinToInterrupt(pin), [] {if (ButtonPressed+= (millis() - DebounceTimer) >= (delayTime )) DebounceTimer = millis();}, RISING);
   //attachInterrupt(digitalPinToInterrupt(pin), []{ButtonPressed++;}, RISING); // No Debounce
 }
 void loop() {
-  if (ButtonPressed> 0) Serial.println(Pressed ); 
+  if (ButtonPressed> 0) LOGGER.println(Pressed ); 
   ButtonPressed = 0; // Must clear
 }
 
