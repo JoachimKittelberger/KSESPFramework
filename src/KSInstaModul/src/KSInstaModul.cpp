@@ -45,6 +45,8 @@
 
 #include "KSInstaModul.h"
 
+#include "KSLogger/src/KSLogger.h"
+
 
 uint8_t InstaChannels[8][2] = {    // [8][2]
         { InstaChannel1Plus, InstaChannel1Minus },
@@ -64,12 +66,12 @@ uint8_t InstaGroups[3] = { InstaGroupA, InstaGroupB, InstaGroupC };
 TaskHandle_t KSInstaModul::createConnection() {
 
 	int coreID = xPortGetCoreID();
-	//Serial.print(F("CoreID: "));
-	//Serial.println(coreID);
+	//LOGGER.print(F("CoreID: "));
+	//LOGGER.println(coreID);
 	
 	UBaseType_t setupPriority = uxTaskPriorityGet(NULL);
-	//Serial.print(F("setup: priority = "));
-	//Serial.println(setupPriority);
+	//LOGGER.print(F("setup: priority = "));
+	//LOGGER.println(setupPriority);
 
 	xTaskCreatePinnedToCore(
         [](void* context){ static_cast<KSInstaModul*>(context)->tKSInstaModul(); },
@@ -135,9 +137,9 @@ int KSInstaModul::emptyRXQueue() {
     int charCountInQueue = 0;
     while (available() > 0) {
         uint8_t byte = read();
-        //Serial.print(' ');
-        //Serial.print(to_hex[(byte & 0xF0) >> 4]);
-        //Serial.print(to_hex[byte & 0x0F]);
+        //LOGGER.print(' ');
+        //LOGGER.print(to_hex[(byte & 0xF0) >> 4]);
+        //LOGGER.print(to_hex[byte & 0x0F]);
         charCountInQueue++;
     }
 
@@ -157,7 +159,7 @@ bool KSInstaModul::handleHandshakeRequest() {
             write(0x05);     // respond handshake
             flush();
           
-            //Serial.println("HandShake ok");
+            //LOGGER.println("HandShake ok");
             bSyncHandled = true;
         }
     }
@@ -182,7 +184,7 @@ bool KSInstaModul::handleNewMessage() {
         if (_recTimeNotComplete > 20) {    // 20ms delay should be enough
             
             int bytesInQueue = emptyRXQueue();
-            Serial.printf("Error _recTimeNotComplete: %d bytes in RX queue.\n", bytesInQueue);
+            LOGGER.printf("Error _recTimeNotComplete: %d bytes in RX queue.\n", bytesInQueue);
 
             _recTimeNotComplete = 0;
         }
@@ -212,7 +214,7 @@ bool KSInstaModul::handleNewMessage() {
                 uint8_t calcCRC = calculateCRC(buf);
                 if (calcCRC != buf[10] || buf[11] != 0xAA) {
                     // inconsistent message
-                    Serial.print("Error CRC");
+                    LOGGER.print("Error CRC");
                 } else {
                     bRightProtocol = true;
                 }
@@ -223,7 +225,7 @@ bool KSInstaModul::handleNewMessage() {
                 // try to sync to next message
                 while (available() && peek() != 0x55) {
                     read();
-                    Serial.print("SyncError ");
+                    LOGGER.print("SyncError ");
                 }
             }
             _recTimeNotComplete = 0;
@@ -254,16 +256,16 @@ void KSInstaModul::processNewMessage(uint8_t* pBuffer) {
     // test auf Bestückungsabfrage
     if (SW1 == 0xCD) {
         if ((SW2 == 0xF1) && (DB1 == 0xFA)) {
-            Serial.print("Board Option: ");
+            LOGGER.print("Board Option: ");
             if (DB2 == 0xAA)
-                Serial.print("RX/TX");
+                LOGGER.print("RX/TX");
             else if (DB2 == 0xF0)
-                Serial.print("RX");
+                LOGGER.print("RX");
             else if (DB2 == 0x0F)
-                Serial.print("TX");
+                LOGGER.print("TX");
             else
-                Serial.print("Unknown");
-            Serial.println();
+                LOGGER.print("Unknown");
+            LOGGER.println();
             return;
         }
     }
@@ -301,44 +303,44 @@ void KSInstaModul::processNewMessage(uint8_t* pBuffer) {
 
     // print out the detected commands
     if (channel) {
-        Serial.print("C");
-        Serial.print(channel);
+        LOGGER.print("C");
+        LOGGER.print(channel);
         if (plus)
-            Serial.print("+");
+            LOGGER.print("+");
         else
-            Serial.print("-");
+            LOGGER.print("-");
         if (group == 1)
-            Serial.print("A");
+            LOGGER.print("A");
         else if (group == 2)
-            Serial.print("B");
+            LOGGER.print("B");
         else
-            Serial.print("C");
+            LOGGER.print("C");
     } else if (lightScene || master) {
         if (lightScene)
-            Serial.print("S");
+            LOGGER.print("S");
         if (master) {
-            Serial.print("M");
+            LOGGER.print("M");
             if (plus)
-                Serial.print("+");
+                LOGGER.print("+");
             else
-                Serial.print("-");
+                LOGGER.print("-");
         }
-        Serial.print(lightScene);
+        LOGGER.print(lightScene);
     }
     else if (allOnOff) {
-        Serial.print("All");
+        LOGGER.print("All");
         if (plus)
-            Serial.print("+");
+            LOGGER.print("+");
         else
-            Serial.print("-");
+            LOGGER.print("-");
     }
     
     if (switchOn) {
-        Serial.print("On ");
+        LOGGER.print("On ");
     } else {
-        Serial.print("Off ");
+        LOGGER.print("Off ");
     }
-    Serial.println();
+    LOGGER.println();
 
     // if callback is registered, call callback
     if (onNewMessage) {
@@ -373,7 +375,7 @@ bool KSInstaModul::sendTelegram(bool useHandshake, uint8_t SW1, uint8_t SW2, uin
     // Sende Handshake
     if (useHandshake) {
         if (!startHandshake()) {
-            Serial.println("Error No Handshake in sendTelegram");
+            LOGGER.println("Error No Handshake in sendTelegram");
             xSemaphoreGive(_mutexSerial);
             return false;     // Error. No RxTx-Board
         }
@@ -421,7 +423,7 @@ bool KSInstaModul::sendShortTelegram(uint8_t key, uint8_t group) {
 bool KSInstaModul::sendLongTelegram(uint8_t key, uint8_t group, int duration) {
     bool bError = false;
     if (duration > 12000) {
-        Serial.printf("Warning: Set duration %d to 12000.\n", duration);
+        LOGGER.printf("Warning: Set duration %d to 12000.\n", duration);
         duration = 12000;           // Maximum duration is 12sec
     }
     
@@ -435,7 +437,7 @@ bool KSInstaModul::sendLongTelegram(uint8_t key, uint8_t group, int duration) {
         bError = true;
 
     if (bError) {
-        Serial.println("Error sendLongTelegram");
+        LOGGER.println("Error sendLongTelegram");
     }
 
     return !bError;
@@ -457,10 +459,10 @@ bool KSInstaModul::startHandshake() {
                 char ch = peek();
                 if (ch == 0x05) {
                     read();
-                    //Serial.println("startHandshake ok");
+                    //LOGGER.println("startHandshake ok");
                     return true;
                 } else {
-                    Serial.println("Error: startHandshake");
+                    LOGGER.println("Error: startHandshake");
                     return false;
                 }
             } else {
@@ -471,7 +473,7 @@ bool KSInstaModul::startHandshake() {
         counterTimes++;
     }
 
-    Serial.println("Error: startHandshake");
+    LOGGER.println("Error: startHandshake");
     return false;
 }
 
@@ -514,10 +516,10 @@ void KSInstaModul::printTelegram(uint8_t* pBuffer) {
                 break;
             case 2:
                 if (pBuffer[i] == 0xEF) {
-                    Serial.print("RECV:");
+                    LOGGER.print("RECV:");
                 }
                 else {
-                    Serial.print("SEND:");
+                    LOGGER.print("SEND:");
                 }
                 //continue;
                 break;
@@ -543,7 +545,7 @@ void KSInstaModul::printTelegram(uint8_t* pBuffer) {
                 //continue;
                 break;
             case 11:
-                //Serial.print(' ');
+                //LOGGER.print(' ');
                 //continue;
                 break;
                 
@@ -552,11 +554,11 @@ void KSInstaModul::printTelegram(uint8_t* pBuffer) {
         }
         
         // convert into hex
-        Serial.print(to_hex[(pBuffer[i] & 0xF0) >> 4]);
-        Serial.print(to_hex[pBuffer[i] & 0x0F]);
-        Serial.print(' ');
+        LOGGER.print(to_hex[(pBuffer[i] & 0xF0) >> 4]);
+        LOGGER.print(to_hex[pBuffer[i] & 0x0F]);
+        LOGGER.print(' ');
     }
-    Serial.println();
+    LOGGER.println();
 }
 
 
@@ -610,7 +612,7 @@ String KSInstaModul::generateRpcString(String src, uint8_t group, uint8_t channe
 
     String output;
     serializeJson(doc, output);
-	//Serial.println(output);
+	//LOGGER.println(output);
 
 	return output;
 }

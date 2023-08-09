@@ -120,12 +120,12 @@ class KSMQTTSubscriptionTopic {
     
     public:
         KSMQTTSubscriptionTopic(const char* topic, void (*callback)(char* topic, byte* payload, unsigned int length)) {
-            //Serial.printf("Constructor KSMQTTSubscriptionTopic topic: %s\n", topic);
+            //LOGGER.printf("Constructor KSMQTTSubscriptionTopic topic: %s\n", topic);
             _topic = strdup(topic);
             onSubscribedTopicListener = callback;
         };
         virtual ~KSMQTTSubscriptionTopic() {
-            //Serial.printf("Destructor KSMQTTSubscriptionTopic topic: %s\n", _topic);
+            //LOGGER.printf("Destructor KSMQTTSubscriptionTopic topic: %s\n", _topic);
             if (_topic != NULL)
                 free(_topic);
         };

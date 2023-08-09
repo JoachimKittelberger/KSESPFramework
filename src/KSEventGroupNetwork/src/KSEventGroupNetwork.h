@@ -71,7 +71,7 @@
     if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
         if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_DISPLAY_INITIALIZED) == 0) {
             xEventGroupSetBits(*_phEventGroupNetwork, EG_DISPLAY_INITIALIZED);
-//            Serial.println(F("[display] Set Event EG_DISPLAY_INITIALIZED"));
+//            LOGGER.println(F("[display] Set Event EG_DISPLAY_INITIALIZED"));
         }
     }
 
@@ -80,17 +80,17 @@
     if (_hEventGroup) {
 		// prüfen, ob Zeichnen zur Verfügung steht, ansonsten warten, bis frei
         if ((xEventGroupGetBits(_hEventGroup) & KSCRITICALSECTION_FREE) == 0) {
-            //Serial.println(F("[KSCriticalSection] Wating for Event KSCRITICALSECTION_FREE"));
+            //LOGGER.println(F("[KSCriticalSection] Wating for Event KSCRITICALSECTION_FREE"));
             EventBits_t eventGroupValue;
             eventGroupValue = xEventGroupWaitBits(_hEventGroup, KSCRITICALSECTION_FREE, pdFALSE, pdTRUE, portMAX_DELAY);
-            //Serial.println(F("[KSCriticalSection] Event KSCRITICALSECTION_FREE set"));
+            //LOGGER.println(F("[KSCriticalSection] Event KSCRITICALSECTION_FREE set"));
         }
     }
 
     // Reset Events
     if ((xEventGroupGetBits(_hEventGroup) & KSCRITICALSECTION_FREE) == KSCRITICALSECTION_FREE) {
         xEventGroupClearBits(_hEventGroup, KSCRITICALSECTION_FREE);
-        //Serial.println(F("[KSCriticalSection] Enter Critical Section"));
+        //LOGGER.println(F("[KSCriticalSection] Enter Critical Section"));
     }
 */
 

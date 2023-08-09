@@ -44,8 +44,9 @@
 
 #include <TimeLib.h>        // evtl nicht vorhanden
 
-
 #include "KSNTPClientLight.h"
+
+#include "KSLogger/src/KSLogger.h"
 
 
 
@@ -68,14 +69,14 @@ bool KSNTPClientLight::sync(uint32_t timeoutMS) {
 	bool bSyncOK = getLocalTime(&local, timeoutMS);      // Versuche timeoutMS zu Synchronisieren
 /*
     struct tm timeInfo = { 0 };
-  	Serial.print("Local DateTime after NTP sync: ");
+  	LOGGER.print("Local DateTime after NTP sync: ");
     getTime(&timeInfo);
 */
     // auf aktuelle Zeitzone anpassen
     initTimeZone();
 
 /*
-  	Serial.print("Local DateTime after NTP sync and set TZ: ");
+  	LOGGER.print("Local DateTime after NTP sync and set TZ: ");
     getTime(&timeInfo);
  */
     return bSyncOK;
@@ -86,7 +87,7 @@ bool KSNTPClientLight::sync(uint32_t timeoutMS) {
 // Zeit kann mit getLocalTime(&tm) gelesen werden
 void KSNTPClientLight::getTime(tm* pTimeInfo) {
 	getLocalTime(pTimeInfo);
-	Serial.println(pTimeInfo, "Datum: %d.%m.%y  Zeit: %H:%M:%S"); // Zeit Datum Print Ausgabe formatieren
+	LOGGER.println(pTimeInfo, "Datum: %d.%m.%y  Zeit: %H:%M:%S"); // Zeit Datum Print Ausgabe formatieren
 }
 
 /*
@@ -96,12 +97,12 @@ TaskHandle_t KSNTPClientLight::createConnection(EventGroupHandle_t *phEventGroup
     _pRTC = pRTC;
 
 	int coreID = xPortGetCoreID();
-	//Serial.print(F("CoreID: "));
-	//Serial.println(coreID);
+	//LOGGER.print(F("CoreID: "));
+	//LOGGER.println(coreID);
 	
 	UBaseType_t setupPriority = uxTaskPriorityGet(NULL);
-	//Serial.print(F("setup: priority = "));
-	//Serial.println(setupPriority);
+	//LOGGER.print(F("setup: priority = "));
+	//LOGGER.println(setupPriority);
 
 	xTaskCreatePinnedToCore(
     	[](void* context){ static_cast<KSNTPClientLight*>(context)->tKSNTPClientLight(); },
@@ -152,7 +153,7 @@ void KSNTPClientLight::tKSNTPClientLight()
         // Wenn Connection-Bit noch nicht gesetzt, dann das erste Mal warten.
         if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
             if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-                //Serial.println(F("[ntp] Wating for Event EG_NETWORK_CONNECTED"));
+                //LOGGER.println(F("[ntp] Wating for Event EG_NETWORK_CONNECTED"));
 
                 // Reset EG_NETWORK_NTP_SYNCING
                 if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_NTP_SYNCING) == EG_NETWORK_NTP_SYNCING) {
@@ -161,7 +162,7 @@ void KSNTPClientLight::tKSNTPClientLight()
 
                 EventBits_t eventGroupValue;
                 eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-                //Serial.println(F("[ntp] Event EG_NETWORK_CONNECTED set"));
+                //LOGGER.println(F("[ntp] Event EG_NETWORK_CONNECTED set"));
             }
 
             // set EG_NETWORK_NTP_SYNCING
@@ -172,9 +173,9 @@ void KSNTPClientLight::tKSNTPClientLight()
 
 
         // hier muss eine WiFi-Verbindung da sein.
-        Serial.print(F("[ntp] Synchronizing with NTP-Server: "));
-        Serial.print(ntpServer);
-        Serial.println(F(" ..."));
+        LOGGER.print(F("[ntp] Synchronizing with NTP-Server: "));
+        LOGGER.print(ntpServer);
+        LOGGER.println(F(" ..."));
 //	    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);       // init and read from ntp server
 
 #if defined(ESP32)
@@ -206,8 +207,8 @@ void KSNTPClientLight::tKSNTPClientLight()
             if (_pRTC) {
                 _pRTC->adjust(&timeinfo);
             }
-        	Serial.print(&timeinfo, "[ntp] synchronized: %A, %d. %B %Y %H:%M:%S");
-            Serial.println(timeinfo.tm_isdst ? " Sommerzeit" : " Winterzeit (Std)");
+        	LOGGER.print(&timeinfo, "[ntp] synchronized: %A, %d. %B %Y %H:%M:%S");
+            LOGGER.println(timeinfo.tm_isdst ? " Sommerzeit" : " Winterzeit (Std)");
 
             // Reset EG_NETWORK_NTP_SYNCING
             // set EG_NETWORK_NTP_SYNCED
@@ -221,7 +222,7 @@ void KSNTPClientLight::tKSNTPClientLight()
 			}
         } else {
             _bIsInSync = false;
-            Serial.println("[ntp] Failed to obtain time from NTP-Server");
+            LOGGER.println("[ntp] Failed to obtain time from NTP-Server");
  
             // Reset EG_NETWORK_NTP_SYNCED
             if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
@@ -239,10 +240,10 @@ void KSNTPClientLight::tKSNTPClientLight()
 
 void KSNTPClientLight::waitForSync() {
     if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
-        Serial.println(F("[ntp] Waiting for Event EG_NETWORK_NTP_SYNCED"));
+        LOGGER.println(F("[ntp] Waiting for Event EG_NETWORK_NTP_SYNCED"));
         EventBits_t eventGroupValue;
         eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, EG_NETWORK_NTP_SYNCED, pdFALSE, pdTRUE, portMAX_DELAY);
-        Serial.println(F("[ntp] Event EG_NETWORK_NTP_SYNCED set"));
+        LOGGER.println(F("[ntp] Event EG_NETWORK_NTP_SYNCED set"));
     }
 }
 

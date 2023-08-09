@@ -46,18 +46,19 @@
 
 #include "KSDeepSleep.h"
 
+#include "KSLogger/src/KSLogger.h"
 
 
 void KSDeepSleep::printWakeupReason() {
     esp_sleep_wakeup_cause_t wakeup_reason = esp_sleep_get_wakeup_cause();
 
     switch (wakeup_reason) {
-        case ESP_SLEEP_WAKEUP_EXT0 : Serial.println("Wakeup caused by external signal using RTC_IO"); break;
-        case ESP_SLEEP_WAKEUP_EXT1 : Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
-        case ESP_SLEEP_WAKEUP_TIMER : Serial.println("Wakeup caused by timer"); break;
-        case ESP_SLEEP_WAKEUP_TOUCHPAD : Serial.println("Wakeup caused by touchpad"); break;
-        case ESP_SLEEP_WAKEUP_ULP : Serial.println("Wakeup caused by ULP program"); break;
-        default : Serial.printf("Wakeup was not caused by deep sleep: %d\n", wakeup_reason); break;
+        case ESP_SLEEP_WAKEUP_EXT0 : LOGGER.println("Wakeup caused by external signal using RTC_IO"); break;
+        case ESP_SLEEP_WAKEUP_EXT1 : LOGGER.println("Wakeup caused by external signal using RTC_CNTL"); break;
+        case ESP_SLEEP_WAKEUP_TIMER : LOGGER.println("Wakeup caused by timer"); break;
+        case ESP_SLEEP_WAKEUP_TOUCHPAD : LOGGER.println("Wakeup caused by touchpad"); break;
+        case ESP_SLEEP_WAKEUP_ULP : LOGGER.println("Wakeup caused by ULP program"); break;
+        default : LOGGER.printf("Wakeup was not caused by deep sleep: %d\n", wakeup_reason); break;
     }
 }
 
@@ -75,12 +76,12 @@ bool KSDeepSleep::isWakeupReasonReset() {
 
     switch(wakeup_reason)
     {
-        case ESP_SLEEP_WAKEUP_EXT0 : Serial.println("Wakeup caused by external signal using RTC_IO"); break;
-        case ESP_SLEEP_WAKEUP_EXT1 : Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
-        case ESP_SLEEP_WAKEUP_TIMER : Serial.println("Wakeup caused by timer"); break;
-        case ESP_SLEEP_WAKEUP_TOUCHPAD : Serial.println("Wakeup caused by touchpad"); break;
-        case ESP_SLEEP_WAKEUP_ULP : Serial.println("Wakeup caused by ULP program"); break;
-        default : Serial.printf("Wakeup was not caused by deep sleep: %d\n",wakeup_reason);
+        case ESP_SLEEP_WAKEUP_EXT0 : LOGGER.println("Wakeup caused by external signal using RTC_IO"); break;
+        case ESP_SLEEP_WAKEUP_EXT1 : LOGGER.println("Wakeup caused by external signal using RTC_CNTL"); break;
+        case ESP_SLEEP_WAKEUP_TIMER : LOGGER.println("Wakeup caused by timer"); break;
+        case ESP_SLEEP_WAKEUP_TOUCHPAD : LOGGER.println("Wakeup caused by touchpad"); break;
+        case ESP_SLEEP_WAKEUP_ULP : LOGGER.println("Wakeup caused by ULP program"); break;
+        default : LOGGER.printf("Wakeup was not caused by deep sleep: %d\n",wakeup_reason);
             return true;
             break;
     }
@@ -93,7 +94,7 @@ void KSDeepSleep::setWakeupTimer(uint64_t time_in_us) {
 
 	esp_sleep_enable_timer_wakeup(time_in_us);
 	//int time_in_sec = int(time_in_us / US2SECOND);
-	//Serial.println("Setup ESP32 to sleep for every " + String(time_in_sec) + " Seconds");
+	//LOGGER.println("Setup ESP32 to sleep for every " + String(time_in_sec) + " Seconds");
 }
 
 
@@ -111,7 +112,7 @@ void KSDeepSleep::init(uint64_t time_in_us, gpio_num_t gpio_num, int level) {
     The line below turns off all RTC peripherals in deep sleep.
     */
     //esp_deep_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
-    //Serial.println("Configured all RTC Peripherals to be powered down in sleep");
+    //LOGGER.println("Configured all RTC Peripherals to be powered down in sleep");
 
     // folgender Code muss vewendet werden, wenn RTC Memory an anderer Stelle ausgeschalten wird  
     //esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_ON);

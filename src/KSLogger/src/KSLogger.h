@@ -86,6 +86,7 @@ class KSSerialAndTelnet : public Stream {
             _telnet = telnet;
         };
 #endif
+        bool init();
         // Stream implementation
         int read();
         int available();

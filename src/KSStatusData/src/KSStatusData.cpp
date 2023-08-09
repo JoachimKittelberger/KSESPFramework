@@ -46,6 +46,7 @@
 #include "KSAppInfo/src/KSAppInfo.h"
 #include "KSRTC/src/KSRTC.h"
 #include "KSUtilities/src/KSUtilities.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 
@@ -118,7 +119,7 @@ String KSStatusDataController::getJson() {
 
 	//	char output[1024];
 	//	serializeJson(doc, output, sizeof(output));
-		//Serial.println(output);
+		//LOGGER.println(output);
 
 		csAccess.LeaveCriticalSection();
 
@@ -131,7 +132,7 @@ String KSStatusDataController::getJson() {
 
 
 void KSStatusDataController::printContent() {
-	Serial.println(getJson());
+	LOGGER.println(getJson());
 }
 
 

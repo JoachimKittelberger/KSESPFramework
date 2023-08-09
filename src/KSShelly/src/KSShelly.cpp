@@ -48,6 +48,8 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
+#include "KSLogger/src/KSLogger.h"
+
 
 
 
@@ -112,7 +114,7 @@ bool KSShelly::setState(bool bOn, int id) {
     serverPath.concat(id);
     serverPath.concat("&on=");
     serverPath.concat(bOn ? "true" : "false");
-    //Serial.println(serverPath);
+    //LOGGER.println(serverPath);
 
     String payload = httpGETRequest(serverPath.c_str());
 
@@ -120,8 +122,8 @@ bool KSShelly::setState(bool bOn, int id) {
 	StaticJsonDocument<128> doc;
     DeserializationError error = deserializeJson(doc, payload);
     if (error) {
-        Serial.print("Error: KSShelly::setState(...) deserializeJson() failed: ");
-        Serial.println(error.c_str());
+        LOGGER.print("Error: KSShelly::setState(...) deserializeJson() failed: ");
+        LOGGER.println(error.c_str());
         bLastError = true;
         return false;
     }
@@ -137,7 +139,7 @@ String KSShelly::httpGETRequest(const char* requestURL) {
     HTTPClient http;
     
     // Your IP address with path or Domain name with URL path 
-    //Serial.print("[HTTP] begin...\n");
+    //LOGGER.print("[HTTP] begin...\n");
     http.begin(requestURL);
     
     // Send HTTP POST request
@@ -146,14 +148,14 @@ String KSShelly::httpGETRequest(const char* requestURL) {
     String payload = "{}"; 
     
     if (httpResponseCode > 0) {
-        //Serial.printf("[HTTP] GET... code: %d\n", httpResponseCode);
+        //LOGGER.printf("[HTTP] GET... code: %d\n", httpResponseCode);
 
         if (httpResponseCode == HTTP_CODE_OK) {
             payload = http.getString();
-            //Serial.println(payload);
+            //LOGGER.println(payload);
         }
     } else {
-        Serial.printf("[HTTP] GET... failed, error %d: %s\n", httpResponseCode, http.errorToString(httpResponseCode).c_str());
+        LOGGER.printf("[HTTP] GET... failed, error %d: %s\n", httpResponseCode, http.errorToString(httpResponseCode).c_str());
         bLastError = true;
     }
 
@@ -191,8 +193,8 @@ String httpPOSTRequest(const char* serverName) {
       //http.addHeader("Content-Type", "text/plain");
       //int httpResponseCode = http.POST("Hello, World!");
      
-      Serial.print("HTTP Response code: ");
-      Serial.println(httpResponseCode);
+      LOGGER.print("HTTP Response code: ");
+      LOGGER.println(httpResponseCode);
         
       // Free resources
       http.end();

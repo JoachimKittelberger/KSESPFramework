@@ -45,6 +45,8 @@
 
 #include "Jet32DataTelegram.h"
 
+#include "KSLogger/src/KSLogger.h"
+
 
 
 Jet32DataTelegram::Jet32DataTelegram(int receivePort) : 
@@ -67,11 +69,11 @@ Jet32DataTelegram::Jet32DataTelegram(int receivePort) :
 
 
 void Jet32DataTelegram::printArray(uint8_t* rawarray, uint16_t length) {
-//    Serial.println("Raw-Values:");
+//    LOGGER.println("Raw-Values:");
     for (uint16_t i = 0; i < length; i++) {
         uint8_t value = rawarray[i];
-//        Serial.printf("%u " ,value);
-        Serial.printf("0x%02X " ,value);
+//        LOGGER.printf("%u " ,value);
+        LOGGER.printf("0x%02X " ,value);
     }
 }
 
@@ -167,7 +169,7 @@ void Jet32DataTelegram::init(Jet32Command cmd, uint32_t number, int32_t value, u
 
         default:
             // not supported Command
-            Serial.printf("CMD %u not supported", cmd);
+            LOGGER.printf("CMD %u not supported", cmd);
             break;
     }
 }

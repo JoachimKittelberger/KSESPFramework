@@ -50,6 +50,7 @@
 
 #include "KSEventGroupDisplay/src/KSEventGroupDisplay.h"
 #include "KSEventGroupNetwork/src/KSEventGroupNetwork.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 
@@ -126,12 +127,12 @@ TaskHandle_t KSDisplay::createConnection(EventGroupHandle_t *phEventGroupNetwork
 	_phEventGroupDisplay = phEventGroupDisplay;
 
 	int coreID = xPortGetCoreID();
-	//Serial.print(F("CoreID: "));
-	//Serial.println(coreID);
+	//LOGGER.print(F("CoreID: "));
+	//LOGGER.println(coreID);
 	
 	UBaseType_t setupPriority = uxTaskPriorityGet(NULL);
-	//Serial.print(F("setup: priority = "));
-	//Serial.println(setupPriority);
+	//LOGGER.print(F("setup: priority = "));
+	//LOGGER.println(setupPriority);
 
 	xTaskCreatePinnedToCore(
         [](void* context){ static_cast<KSDisplay*>(context)->tKSDisplay(); },
@@ -212,10 +213,10 @@ void KSDisplay::waitForInit() {
 	// Warte auf Initialisierung:
 	if (_phEventGroupDisplay && (*_phEventGroupDisplay != NULL)) {
 		if ((xEventGroupGetBits(*_phEventGroupDisplay) & EG_DISPLAY_INITIALIZED) == 0) {
-//            Serial.println(F("[display] Wating for Event EG_DISPLAY_INITIALIZED"));
+//            LOGGER.println(F("[display] Wating for Event EG_DISPLAY_INITIALIZED"));
 			EventBits_t eventGroupValue;
 			eventGroupValue = xEventGroupWaitBits(*_phEventGroupDisplay, EG_DISPLAY_INITIALIZED, pdFALSE, pdTRUE, portMAX_DELAY);
-//            Serial.println(F("[display] Event EG_DISPLAY_INITIALIZED set"));
+//            LOGGER.println(F("[display] Event EG_DISPLAY_INITIALIZED set"));
 			}
 	} else {
 		while (!_bIsInit) {
@@ -305,12 +306,12 @@ void KSDisplay::showScreenSaver(unsigned long duration, boolean forever)
 				_icons[f][YPOS] = 0;
 				_icons[f][DELTAY] = random(5) + 1;
 				
-		//  Serial.print("x: ");
-		//  Serial.print(icons[f][XPOS], DEC);
-		//  Serial.print(" y: ");
-		//  Serial.print(icons[f][YPOS], DEC);
-		//  Serial.print(" dy: ");
-		//  Serial.println(icons[f][DELTAY], DEC);
+		//  LOGGER.print("x: ");
+		//  LOGGER.print(icons[f][XPOS], DEC);
+		//  LOGGER.print(" y: ");
+		//  LOGGER.print(icons[f][YPOS], DEC);
+		//  LOGGER.print(" dy: ");
+		//  LOGGER.println(icons[f][DELTAY], DEC);
 		}
 */
 	unsigned long startMillis = millis();
@@ -534,13 +535,13 @@ void KSDisplay::DrawScrollbar(int percent, int maxEntries) {
 		sbHeight = SB_INNERHEIGHT;
 	if (sbHeight < SB_DEFAULTHEIGHT)
 		sbHeight = SB_DEFAULTHEIGHT;
-	//Serial.printf("sbHeight: %d\n", sbHeight);
+	//LOGGER.printf("sbHeight: %d\n", sbHeight);
 
 	// calculate the Position of the scrollbar
 	int sbTopPosition = SB_TOP + SB_FRAMETHICKNESS_TOINNER;
 	int sbBottomPosition = SB_TOP + SB_HIGHT - SB_FRAMETHICKNESS_TOINNER;
-	//Serial.printf("sbTopPosition: %d\n", sbTopPosition);
-	//Serial.printf("sbBottomPosition: %d\n", sbBottomPosition);
+	//LOGGER.printf("sbTopPosition: %d\n", sbTopPosition);
+	//LOGGER.printf("sbBottomPosition: %d\n", sbBottomPosition);
 
 	int sbPixelRange = (sbBottomPosition - sbTopPosition) - sbHeight;
 	if (sbPixelRange <= 0)
@@ -555,7 +556,7 @@ void KSDisplay::DrawScrollbar(int percent, int maxEntries) {
 		sbStartPosition = sbTopPosition;
 	if (sbStartPosition + sbHeight > sbBottomPosition)
 		sbStartPosition = sbBottomPosition - sbHeight;
-	//Serial.printf("sbStartPosition: %d\n", sbStartPosition);
+	//LOGGER.printf("sbStartPosition: %d\n", sbStartPosition);
 
 	// draw outer rectangle on the right side
 	_display.drawRoundRect(_display.width() - SB_WIDTH, SB_TOP, SB_WIDTH, SB_HIGHT, SB_ROUNDED, WHITE);

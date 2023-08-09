@@ -43,6 +43,8 @@
 
 #include "KSGY302.h"
 
+#include "KSLogger/src/KSLogger.h"
+
 
 
 KSGY302::KSGY302(uint8_t addrPinLevel, KSCriticalSection* pcsI2C) : _sensor(addrPinLevel) {
@@ -96,13 +98,13 @@ float KSGY302::readIlluminance() {
 	retVal = lux * 1.0;						// mid resolution -> 1.0 lx
 
     // Print light
-//    Serial.print(F("Light: "));
-//    Serial.print(lux / 2);
-//    Serial.print(F("."));
-//    Serial.print(lux % 10);
-//    Serial.print(" LUX");
+//    LOGGER.print(F("Light: "));
+//    LOGGER.print(lux / 2);
+//    LOGGER.print(F("."));
+//    LOGGER.print(lux % 10);
+//    LOGGER.print(" LUX");
 		
-//	Serial.printf("   RetVal: %f\n", retVal);
+//	LOGGER.printf("   RetVal: %f\n", retVal);
 	return retVal;
 }
 

@@ -43,6 +43,7 @@
 
 #include "KSFTPServer.h"
 #include "KSEventGroupNetwork/src/KSEventGroupNetwork.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 
@@ -60,12 +61,12 @@ TaskHandle_t KSFTPServer::createConnection(EventGroupHandle_t *phEventGroupNetwo
 	_phEventGroupNetwork = phEventGroupNetwork;
 
 	int coreID = xPortGetCoreID();
-	//Serial.print(F("CoreID: "));
-	//Serial.println(coreID);
+	//LOGGER.print(F("CoreID: "));
+	//LOGGER.println(coreID);
 	
 	UBaseType_t setupPriority = uxTaskPriorityGet(NULL);
-	//Serial.print(F("setup: priority = "));
-	//Serial.println(setupPriority);
+	//LOGGER.print(F("setup: priority = "));
+	//LOGGER.println(setupPriority);
 
 	xTaskCreatePinnedToCore(
         [](void* context){ static_cast<KSFTPServer*>(context)->tKSFTPServer(); },
@@ -88,10 +89,10 @@ void KSFTPServer::tKSFTPServer()
     // Wenn Connection-Bit noch nicht gesetzt, dann das erste Mal warten.
     if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
         if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-            //Serial.println(F("[ftp] Wating for Event EG_NETWORK_CONNECTED"));
+            //LOGGER.println(F("[ftp] Wating for Event EG_NETWORK_CONNECTED"));
             EventBits_t eventGroupValue;
             eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-            //Serial.println(F("[ftp] Event EG_NETWORK_CONNECTED set"));
+            //LOGGER.println(F("[ftp] Event EG_NETWORK_CONNECTED set"));
         }
     }
             
@@ -106,10 +107,10 @@ void KSFTPServer::tKSFTPServer()
         // Wenn Connection-Bit noch nicht gesetzt, dann das erste Mal warten.
         if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
             if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-                //Serial.println(F("[ftp] Wating for Event EG_NETWORK_CONNECTED"));
+                //LOGGER.println(F("[ftp] Wating for Event EG_NETWORK_CONNECTED"));
                 EventBits_t eventGroupValue;
                 eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-                //Serial.println(F("[ftp] Event EG_NETWORK_CONNECTED set"));
+                //LOGGER.println(F("[ftp] Event EG_NETWORK_CONNECTED set"));
             }
         }
 

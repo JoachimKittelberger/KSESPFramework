@@ -44,6 +44,8 @@
 
 #include "KSResetController.h"
 
+#include "KSLogger/src/KSLogger.h"
+
 
 KSResetController::KSResetController(unsigned long resetTimeInSec) {
 	onResetListener = NULL;
@@ -78,25 +80,25 @@ TaskHandle_t KSResetController::create() {
 
 
 void KSResetController::tKSResetController() {
-	Serial.println("created Task tKSResetController");
+	LOGGER.println("created Task tKSResetController");
 	for (;;) {
 		unsigned long currentMillis = millis();
 		if (currentMillis >= _resetTimeInMillis) {
 
-			Serial.print("ResetController reset after ");
-			Serial.print(currentMillis);
-			Serial.println("ms. Restarting ESP ...");
-			Serial.flush();
+			LOGGER.print("ResetController reset after ");
+			LOGGER.print(currentMillis);
+			LOGGER.println("ms. Restarting ESP ...");
+			LOGGER.flush();
 			
 			if (onResetListener) {
 				onResetListener();
 			}
 			reset();
 		} else {
-/*			Serial.print("Check Resetcontroller current ms: ");
-			Serial.print(currentMillis);
-			Serial.print(" Reset at: ");
-			Serial.println(_resetTimeInMillis);
+/*			LOGGER.print("Check Resetcontroller current ms: ");
+			LOGGER.print(currentMillis);
+			LOGGER.print(" Reset at: ");
+			LOGGER.println(_resetTimeInMillis);
 */		}
 		vTaskDelay(pdMS_TO_TICKS(1000));
 

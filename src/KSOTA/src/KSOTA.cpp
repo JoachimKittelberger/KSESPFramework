@@ -106,12 +106,12 @@ TaskHandle_t KSOTA::createConnection(EventGroupHandle_t *phEventGroupNetwork) {
 	_phEventGroupNetwork = phEventGroupNetwork;
 
 	int coreID = xPortGetCoreID();
-    //Serial.print(F("CoreID: "));
-	//Serial.println(coreID);
+    //LOGGER.print(F("CoreID: "));
+	//LOGGER.println(coreID);
 	
 	UBaseType_t setupPriority = uxTaskPriorityGet(NULL);
-	//Serial.print(F("setup: priority = "));
-	//Serial.println(setupPriority);
+	//LOGGER.print(F("setup: priority = "));
+	//LOGGER.println(setupPriority);
 
 	xTaskCreatePinnedToCore(
     	[](void* context){ static_cast<KSOTA*>(context)->tKSOTA(); },
@@ -136,10 +136,10 @@ void KSOTA::tKSOTA()
     // Wenn Connection-Bit noch nicht gesetzt, dann das erste Mal warten.
     if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
         if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-            //Serial.println(F("[ota] Wating for Event EG_NETWORK_CONNECTED"));
+            //LOGGER.println(F("[ota] Wating for Event EG_NETWORK_CONNECTED"));
             EventBits_t eventGroupValue;
             eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-            //Serial.println(F("[ota] Event EG_NETWORK_CONNECTED set"));
+            //LOGGER.println(F("[ota] Event EG_NETWORK_CONNECTED set"));
         }
     }
             
@@ -153,10 +153,10 @@ void KSOTA::tKSOTA()
         // Wenn Connection-Bit noch nicht gesetzt, dann das erste Mal warten.
         if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
             if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-                //Serial.println(F("[ota] Wating for Event EG_NETWORK_CONNECTED"));
+                //LOGGER.println(F("[ota] Wating for Event EG_NETWORK_CONNECTED"));
                 EventBits_t eventGroupValue;
                 eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-                //Serial.println(F("[ota] Event EG_NETWORK_CONNECTED set"));
+                //LOGGER.println(F("[ota] Event EG_NETWORK_CONNECTED set"));
             }
         }
 
@@ -215,8 +215,8 @@ void KSOTA::_onStart() {   // do something before OTA Update
         _pLCD->setCursor(0, 1);
         _pLCD->print("Please Wait   0%");
     }
-    Serial.printf("[ota]: Starting OTA-Update for %s. Current version is %s\n", _projectName.c_str(), _swVersion.c_str());
-    //Serial.println("[ota]: onStart");
+    LOGGER.printf("[ota]: Starting OTA-Update for %s. Current version is %s\n", _projectName.c_str(), _swVersion.c_str());
+    //LOGGER.println("[ota]: onStart");
     // call handler function if exist
     if (_cb_start) {
         _cb_start();
@@ -237,8 +237,8 @@ void KSOTA::_onEnd() {                         // do something after OTA Update
         _pLCD->print("End");
 	    if (_pLCD->_pcsI2C) _pLCD->_pcsI2C->LeaveCriticalSection();
     }
-    Serial.printf("[ota]: Successfull ended OTA-Update for %s. Old version was %s\n", _projectName, _swVersion);
-    //Serial.println("[ota]: onEnd");
+    LOGGER.printf("[ota]: Successfull ended OTA-Update for %s. Old version was %s\n", _projectName, _swVersion);
+    //LOGGER.println("[ota]: onEnd");
     // call handler function if exist
     if (_cb_end) {
         _cb_end();
@@ -259,7 +259,7 @@ void KSOTA::_onProgress(unsigned int progress, unsigned int total) {            
 
     static unsigned int lastPercentage = 0;
     if (lastPercentage != percentage)  {
-        Serial.printf("[ota]: %3u%%\n", percentage);
+        LOGGER.printf("[ota]: %3u%%\n", percentage);
         lastPercentage = percentage;
     }
 
@@ -272,12 +272,12 @@ void KSOTA::_onProgress(unsigned int progress, unsigned int total) {            
 
 
 void KSOTA::_onError(ota_error_t error) {
-    Serial.printf("[ota]: Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-    else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    LOGGER.printf("[ota]: Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) LOGGER.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) LOGGER.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) LOGGER.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) LOGGER.println("Receive Failed");
+    else if (error == OTA_END_ERROR) LOGGER.println("End Failed");
    	
  	if (_pLCD) {
         if (_pLCD->_pcsI2C) _pLCD->_pcsI2C->LeaveCriticalSection();
@@ -351,7 +351,7 @@ void KSOTA::begin() {
                 }
             }
 
-            Serial.printf("Update: %s, index: %d, len: %d, final: %s\n", filename.c_str(), index, len, final ? "Yes" : "No");
+            LOGGER.printf("Update: %s, index: %d, len: %d, final: %s\n", filename.c_str(), index, len, final ? "Yes" : "No");
 
             // start OTA
             if (!index) {

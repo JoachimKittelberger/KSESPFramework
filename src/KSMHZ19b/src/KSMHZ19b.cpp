@@ -44,6 +44,8 @@
 
 #include "KSMHZ19b.h"
 
+#include "KSLogger/src/KSLogger.h"
+
 
 
 KSMHZ19b::KSMHZ19b(int8_t RXPin, uint8_t TXPin) {
@@ -69,8 +71,8 @@ int KSMHZ19b::readCO2() {
       usual documented command with getCO2(false) */
 	int CO2 = _mhz19b.getCO2(true, true);                             // Request CO2 (as ppm)
 	if (_mhz19b.errorCode != RESULT_OK) {
-		Serial.print(F("Failed to read from MHZ19 sensor! Error: "));
-		Serial.println(_mhz19b.errorCode);
+		LOGGER.print(F("Failed to read from MHZ19 sensor! Error: "));
+		LOGGER.println(_mhz19b.errorCode);
         CO2 = -1;
 	}
     return CO2;

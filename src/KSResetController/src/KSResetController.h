@@ -52,8 +52,8 @@ KSResetController resetController(3*24*60*60);
 // callback function
 void onReset() {
   // is called before Reset of ESP32
-  Serial.println("Reseting ESP32 ...");
-  Serial.flush();
+  LOGGER.println("Reseting ESP32 ...");
+  LOGGER.flush();
   vTaskDelay(pdMS_TO_TICKS(100));
 }
 

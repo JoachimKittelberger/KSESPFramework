@@ -46,6 +46,7 @@
 
 #include <sys/time.h>
 #include "KSUtilities/src/KSUtilities.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 
@@ -68,16 +69,16 @@ bool KSRTC::init(bool bSetCompileTimeIfLost) {
     if (_pcsI2C) _pcsI2C->LeaveCriticalSection();
     
     if (!foundRTC) {
-        Serial.print("[KSRTC] Could not find RTC.");
+        LOGGER.print("[KSRTC] Could not find RTC.");
 
         if (bSetCompileTimeIfLost) {
-            Serial.print(" Let's set the time to Compile-Time of sketch!");
+            LOGGER.print(" Let's set the time to Compile-Time of sketch!");
 
             // set local time to date & time this sketch was compiled
             DateTime dtnow = DateTime(F(__DATE__), F(__TIME__));
             setLocalProcessorDateTime(dtnow);
         }
-        Serial.println();
+        LOGGER.println();
  
         _bHasHWRTC = false;
         bRetVal = false;
@@ -88,9 +89,9 @@ bool KSRTC::init(bool bSetCompileTimeIfLost) {
         
 
         if (lostPower()) {
-            Serial.print("[KSRTC] RTC lost power!");
+            LOGGER.print("[KSRTC] RTC lost power!");
             if (bSetCompileTimeIfLost) {
-                Serial.print(" Let's set the time to Compile-Time of sketch!");
+                LOGGER.print(" Let's set the time to Compile-Time of sketch!");
                 // When time needs to be set on a new device, or after a power loss, the
                 // following line sets the RTC to the date & time this sketch was compiled
                 adjust(DateTime(F(__DATE__), F(__TIME__)));
@@ -98,15 +99,15 @@ bool KSRTC::init(bool bSetCompileTimeIfLost) {
                 // January 21, 2014 at 3am you would call:
                 // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
             }
-            Serial.println();
+            LOGGER.println();
         }
         if (_pcsI2C) _pcsI2C->EnterCriticalSection();
         _rtc.disable32K();
         if (_pcsI2C) _pcsI2C->LeaveCriticalSection();
     }
 
-//    Serial.print("[KSRTC] RTC time init: ");
-//    Serial.println(String(getLocalDateTimeFormated()).c_str());
+//    LOGGER.print("[KSRTC] RTC time init: ");
+//    LOGGER.println(String(getLocalDateTimeFormated()).c_str());
 
     return bRetVal;
 }
@@ -142,7 +143,7 @@ void KSRTC::adjust(const DateTime &dt) {
     // if we have not hardware-RTC, return without doing anything
     // TODO: write local time instead
     if (!_bHasHWRTC) {
-    	Serial.println("Failed to adjust RTC. No RTC-Hardware found. Writing to localtime.");
+    	LOGGER.println("Failed to adjust RTC. No RTC-Hardware found. Writing to localtime.");
         setLocalProcessorDateTime(dt);
         return;
     }
@@ -175,7 +176,7 @@ DateTime KSRTC::now() {
     if (!_bHasHWRTC) {
 	    struct tm timeinfo;
 		if (!getLocalTime(&timeinfo)) {
-			Serial.println("Failed to obtain time");
+			LOGGER.println("Failed to obtain time");
 		}
         dt = DateTime(timeinfo.tm_year + 1900, timeinfo.tm_mon + 1, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
 
@@ -200,7 +201,7 @@ DateTime KSRTC::now() {
 // Zeit kann mit getLocalTime(&tm) gelesen werden
 void KSRTC::getLocalProcessorDateTime(tm* pTimeInfo) {
 	getLocalTime(pTimeInfo);
-	Serial.println(pTimeInfo, "Datum: %d.%m.%y  Zeit: %H:%M:%S"); // Zeit Datum Print Ausgabe formatieren
+	LOGGER.println(pTimeInfo, "Datum: %d.%m.%y  Zeit: %H:%M:%S"); // Zeit Datum Print Ausgabe formatieren
 }
 
 
@@ -229,13 +230,13 @@ void KSRTC::setLocalProcessorDateTime(const DateTime &dt) {
 
     time_t t = timeInfo2time_t(&tm);
     t = t - gmtOffset_sec;          // we are at CET-1, sub 1h
-    //Serial.printf("Setting time: %s\n", asctime(&tm));
+    //LOGGER.printf("Setting time: %s\n", asctime(&tm));
 
     struct timeval tvnow = { 0, 0 };
     tvnow.tv_sec = t;
     settimeofday(&tvnow, NULL);
 
-    //Serial.printf("setLocalProcessorDateTimeFromRTC RTC: %s\n", getLocalDateTimeFormated());
+    //LOGGER.printf("setLocalProcessorDateTimeFromRTC RTC: %s\n", getLocalDateTimeFormated());
     //struct tm tminfo = { 0 };
     //getLocalProcessorDateTime(&tminfo);
 

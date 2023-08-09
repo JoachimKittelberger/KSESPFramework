@@ -46,6 +46,23 @@
 #include "KSLogger.h"
 
 
+// init the defined interface
+bool KSSerialAndTelnet::init() {
+	#if defined(LOG_SERIAL) || defined(LOG_SERIAL_AND_TELNET)
+		Serial.begin(115200);
+		#if ARDUINO_USB_CDC_ON_BOOT
+			Serial.setTxTimeoutMs(0);
+			vTaskDelay(pdMS_TO_TICKS(100));
+		#else
+			while (!Serial)
+				yield();
+		#endif
+	#endif
+	return true;
+}
+
+
+
 // implementations of abstract functions from Stream
 int KSSerialAndTelnet::read() {
 	return -1;

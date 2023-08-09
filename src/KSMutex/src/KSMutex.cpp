@@ -44,6 +44,7 @@
 
 #include "KSMutex.h"
 
+#include "KSLogger/src/KSLogger.h"
 
 
 KSMutex::KSMutex() {
@@ -59,14 +60,14 @@ KSMutex::~KSMutex() {
 
 void KSMutex::Take() {
    xSemaphoreTake(_hMutex, portMAX_DELAY);
-    //Serial.println(F("[KSMutex] Take"));
+    //LOGGER.println(F("[KSMutex] Take"));
 }
 
 
 
 void KSMutex::Give() {
     xSemaphoreGive(_hMutex);  
-    //Serial.println(F("[KSMutex] Give"));
+    //LOGGER.println(F("[KSMutex] Give"));
 }
 
    

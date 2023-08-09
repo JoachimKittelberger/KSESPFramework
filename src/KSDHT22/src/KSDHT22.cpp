@@ -45,6 +45,7 @@
 
 #include "KSDHT22.h"
 
+#include "KSLogger/src/KSLogger.h"
 
 
 KSDHT22::KSDHT22(int8_t pin) : _dht(pin, DHTTYPE) {
@@ -66,7 +67,7 @@ bool KSDHT22::read(float* pTemperature, float* pHumidity, float* pHeatindex) {
     if (pTemperature) {
         *pTemperature = readTemperature();
         if (isnan(*pTemperature)) {
-    		Serial.println(F("Failed to read from DHT sensor!"));
+    		LOGGER.println(F("Failed to read from DHT sensor!"));
             bRetVal = false;
         }
     }
@@ -74,7 +75,7 @@ bool KSDHT22::read(float* pTemperature, float* pHumidity, float* pHeatindex) {
     if (pHumidity) {
         *pHumidity = readHumidity();
         if (isnan(*pHumidity)) {
-    		Serial.println(F("Failed to read from DHT sensor!"));
+    		LOGGER.println(F("Failed to read from DHT sensor!"));
             bRetVal = false;
         }
     }
@@ -82,7 +83,7 @@ bool KSDHT22::read(float* pTemperature, float* pHumidity, float* pHeatindex) {
    if (pHeatindex) {
         *pHeatindex = readcomputedHeatIndex();
         if (isnan(*pHeatindex)) {
-    		Serial.println(F("Failed to read from DHT sensor!"));
+    		LOGGER.println(F("Failed to read from DHT sensor!"));
             bRetVal = false;
         }
     }

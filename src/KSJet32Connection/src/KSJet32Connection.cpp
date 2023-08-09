@@ -45,6 +45,7 @@
 
 #include "KSJet32Connection.h"
 #include "KSEventGroupNetwork/src/KSEventGroupNetwork.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 TaskHandle_t KSJet32Connection::createConnection(EventGroupHandle_t *phEventGroupNetwork) {
@@ -54,12 +55,12 @@ TaskHandle_t KSJet32Connection::createConnection(EventGroupHandle_t *phEventGrou
     resetConnectingEvent();
 
 	int coreID = xPortGetCoreID();
-	//Serial.print(F("CoreID: "));
-	//Serial.println(coreID);
+	//LOGGER.print(F("CoreID: "));
+	//LOGGER.println(coreID);
 	
 	UBaseType_t setupPriority = uxTaskPriorityGet(NULL);
-	//Serial.print(F("setup: priority = "));
-	//Serial.println(setupPriority);
+	//LOGGER.print(F("setup: priority = "));
+	//LOGGER.println(setupPriority);
 
 	xTaskCreatePinnedToCore(
         [](void* context){ static_cast<KSJet32Connection*>(context)->tKSJet32Connection(); },
@@ -82,10 +83,10 @@ void KSJet32Connection::tKSJet32Connection()
     // Wenn Connection-Bit noch nicht gesetzt, dann das erste Mal warten.
     if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
         if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-            //Serial.println(F("[ftp] Wating for Event EG_NETWORK_CONNECTED"));
+            //LOGGER.println(F("[ftp] Wating for Event EG_NETWORK_CONNECTED"));
             EventBits_t eventGroupValue;
             eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-            //Serial.println(F("[ftp] Event EG_NETWORK_CONNECTED set"));
+            //LOGGER.println(F("[ftp] Event EG_NETWORK_CONNECTED set"));
         }
     }
 
@@ -100,8 +101,8 @@ void KSJet32Connection::tKSJet32Connection()
                 memset(buffer, 0, 50);
 
                 int len = _udpReceive.read(buffer, 50);
-                //Serial.printf("Received Packet from %s RemotePort: % d with %u bytes", _udpReceive.remoteIP().toString().c_str(), _udpReceive.remotePort(), packetSize);
-                //Serial.printf(" and length read: %u bytes\n", len);
+                //LOGGER.printf("Received Packet from %s RemotePort: % d with %u bytes", _udpReceive.remoteIP().toString().c_str(), _udpReceive.remotePort(), packetSize);
+                //LOGGER.printf(" and length read: %u bytes\n", len);
                 processPacketHandler(buffer, len);
             }
         } else {
@@ -142,10 +143,10 @@ bool KSJet32Connection::connect() {
     // Wenn Connection-Bit noch nicht gesetzt, dann das erste Mal warten.
     if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
         if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-            //Serial.println(F("[Jet32] Wating for Event EG_NETWORK_CONNECTED"));
+            //LOGGER.println(F("[Jet32] Wating for Event EG_NETWORK_CONNECTED"));
             EventBits_t eventGroupValue;
             eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-            //Serial.println(F("[Jet32] Event EG_NETWORK_CONNECTED set"));
+            //LOGGER.println(F("[Jet32] Event EG_NETWORK_CONNECTED set"));
         }
     }
     setConnectingEvent();
@@ -153,7 +154,7 @@ bool KSJet32Connection::connect() {
 
     // init udp-port
     if (!_udpReceive.begin(_recPort)) {
-        Serial.printf("connect failed _udpReceive.begin\n");
+        LOGGER.printf("connect failed _udpReceive.begin\n");
         return false;
     }
     // get connection state from PLC
@@ -223,10 +224,10 @@ void KSJet32Connection::setConnectingEvent() {
 
 // TODO: -> Kann auch in Jet32DataTelegramm wandern und dort interpretiert werden.
 void KSJet32Connection::processPacketHandler(uint8_t* packet, int length) {
-    //Serial.print("Received ");
-    //Serial.print(": ");
+    //LOGGER.print("Received ");
+    //LOGGER.print(": ");
     //Jet32DataTelegram::printArray(packet, length);
-    //Serial.println();
+    //LOGGER.println();
 
 
     // check if we have a PCOM-Protocol
@@ -242,13 +243,13 @@ void KSJet32Connection::processPacketHandler(uint8_t* packet, int length) {
             if (length == 21 ) {       // for writeVariable
                 if (pData[20] == 0x20) {          // return PCOM-WriteRegister ok
 
-                    //Serial.printf("Write.IntegerRegister comRef: %u ok\n", comRef);
+                    //LOGGER.printf("Write.IntegerRegister comRef: %u ok\n", comRef);
                     _bNewValueArrived = true;
                 }
 
 
                 if (pData[20] == 0xEE) {          // return command 'U' ok
-                    Serial.printf("Return Command U comRef: %u ok\n", comRef);
+                    LOGGER.printf("Return Command U comRef: %u ok\n", comRef);
                     _lastValue = pData[20];
                 }
             }
@@ -262,18 +263,18 @@ void KSJet32Connection::processPacketHandler(uint8_t* packet, int length) {
 
 
                     uint32_t value = (pData[22] * 256*256*256) + (pData[23] * 256*256) + (pData[24] * 256) + pData[25];
-                    //Serial.printf("Read.IntegerRegister comRef: %u: %u\n", comRef, value);
+                    //LOGGER.printf("Read.IntegerRegister comRef: %u: %u\n", comRef, value);
                     _lastValue = value;
                     _bNewValueArrived = true;
                 }
             } else {
-                Serial.println("Wrong Datalenght for Read.IntegerRegister");
+                LOGGER.println("Wrong Datalenght for Read.IntegerRegister");
             }
         } else {
-            Serial.println("Other UDP-Packet received. No PCOM");
+            LOGGER.println("Other UDP-Packet received. No PCOM");
         }
     } else {
-        Serial.println("Other UDP-Packet received. No PCOM");
+        LOGGER.println("Other UDP-Packet received. No PCOM");
     }
 
 
@@ -408,11 +409,11 @@ bool KSJet32Connection::sendTelegramSynchron(Jet32DataTelegram* pMsg, uint32_t c
         udpTX.endPacket();
 		
 		if (!waitForResponse(_timeoutInMS)) {
-	        Serial.printf("Timeout waiting for UDP-Response from %s\n", _remoteIP.toString().c_str());
+	        LOGGER.printf("Timeout waiting for UDP-Response from %s\n", _remoteIP.toString().c_str());
 			bRetVal = false;
 		}
     } else {
-        Serial.printf("Cannot connect to UDP: %s:%u\n", _remoteIP.toString().c_str(), _sendPort);
+        LOGGER.printf("Cannot connect to UDP: %s:%u\n", _remoteIP.toString().c_str(), _sendPort);
         _bConnected = false;
         bRetVal = false;
     }
@@ -439,11 +440,11 @@ bool KSJet32Connection::sendTelegramAsynchron(Jet32DataTelegram* pMsg, uint32_t 
         udpTX.endPacket();
 		
 //		if (!waitForResponse(_timeoutInMS)) {
-//	        Serial.printf("Timeout waiting for UDP-Response from %s\n", _remoteIP.toString().c_str());
+//	        LOGGER.printf("Timeout waiting for UDP-Response from %s\n", _remoteIP.toString().c_str());
 //			bRetVal = false;
 //		}
     } else {
-        Serial.printf("Cannot connect to UDP: %s:%u\n", _remoteIP.toString().c_str(), _sendPort);
+        LOGGER.printf("Cannot connect to UDP: %s:%u\n", _remoteIP.toString().c_str(), _sendPort);
         _bConnected = false;
         bRetVal = false;
     }
@@ -462,7 +463,7 @@ bool KSJet32Connection::getConnectionState(int8_t value) {
 
     msg.init(Jet32Command::connect, 0, value, comRef);
 	if (!sendTelegramAsynchron(&msg, comRef, false)) {      // don't check connection for init connection
-        //Serial.printf("getConnectionState() failed\n");
+        //LOGGER.printf("getConnectionState() failed\n");
 		return false;
 	}
 
@@ -480,8 +481,8 @@ bool KSJet32Connection::getConnectionState(int8_t value) {
             memset(buffer, 0, 50);
 
             int len = _udpReceive.read(buffer, 50);
-            //Serial.printf("Received Packet from %s RemotePort: % d with %u bytes", _udpReceive.remoteIP().toString().c_str(), _udpReceive.remotePort(), packetSize);
-            //Serial.printf(" and length read: %u bytes\n", len);
+            //LOGGER.printf("Received Packet from %s RemotePort: % d with %u bytes", _udpReceive.remoteIP().toString().c_str(), _udpReceive.remotePort(), packetSize);
+            //LOGGER.printf(" and length read: %u bytes\n", len);
             processPacketHandler(buffer, len);
             if ((uint8_t)_lastValue == (value ^ 0xFF)) {
                 bRetVal = true;
@@ -507,7 +508,7 @@ int32_t KSJet32Connection::readIntRegister(uint32_t number) {
     msg.init(Jet32Command::readVariable, number, 0, comRef);
 
 	if (!sendTelegramSynchron(&msg, comRef)) {
-        Serial.printf("Read.IntegerReg %u failed\n", number);
+        LOGGER.printf("Read.IntegerReg %u failed\n", number);
 		return -1;		// TODO: use e.g. MAX_INT
 	}
 	return _lastValue;
@@ -522,7 +523,7 @@ bool KSJet32Connection::writeIntRegister(uint32_t number, int32_t value) {
     msg.init(Jet32Command::writeVariable, number, value, comRef);
 
 	if (!sendTelegramSynchron(&msg, comRef)) {
-        Serial.printf("Write.IntegerReg %u with value %u failed\n", number, value);
+        LOGGER.printf("Write.IntegerReg %u with value %u failed\n", number, value);
 		return false;
 	}
 	return true;

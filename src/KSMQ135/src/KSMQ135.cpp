@@ -44,6 +44,8 @@
 
 #include "KSMQ135.h"
 
+#include "KSLogger/src/KSLogger.h"
+
 
 KSMQ135::KSMQ135(uint8_t anaPin) : _mq135(anaPin) {
     _anaPin = anaPin;
@@ -62,11 +64,11 @@ void KSMQ135::init() {
 
 float KSMQ135::readCO2() {
 	int val = analogRead(_anaPin);
-//	Serial.printf("MQ135: raw: %d", val);
+//	LOGGER.printf("MQ135: raw: %d", val);
 	float zero = _mq135.getRZero();
-//	Serial.printf("  RZero: %.2f", zero);
+//	LOGGER.printf("  RZero: %.2f", zero);
 	float ppm = _mq135.getPPM();
-//	Serial.printf("  ppm: %.2f\n", ppm);
+//	LOGGER.printf("  ppm: %.2f\n", ppm);
 
     return ppm;
 }
@@ -83,7 +85,7 @@ bool KSMQ135::read(float* pCO2) {
 	}
 
 	//	float volt = MQ135.getVoltage();
-	//	Serial.printf("MQ135.getVoltage() = %.02f\n", volt);
+	//	LOGGER.printf("MQ135.getVoltage() = %.02f\n", volt);
 
 /*
 	double anaval = analogRead(_anaPin); // reference Voltage ist 3v3 so maximum reading is 3v3 in range 0 to 4095
@@ -97,7 +99,7 @@ bool KSMQ135::read(float* pCO2) {
 	} else {
 		volt = -0.000000000000016 * pow(anaval, 4) + 0.000000000118171 * pow(anaval, 3) - 0.000000301211691 * pow(anaval, 2) + 0.001109019271794 * anaval + 0.034143524634089;
 	}
-	Serial.printf("Analog-Value Sensor: %.2f Volt: %.2f\n", anaval, volt);
+	LOGGER.printf("Analog-Value Sensor: %.2f Volt: %.2f\n", anaval, volt);
 */
 
     return bRetVal;

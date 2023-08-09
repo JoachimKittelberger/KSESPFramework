@@ -44,6 +44,7 @@
 
 #include "KSMQTTConnection.h"
 #include "KSEventGroupNetwork/src/KSEventGroupNetwork.h"
+#include "KSLogger/src/KSLogger.h"
 
 
 
@@ -55,7 +56,7 @@ KSMQTTConnection::KSMQTTConnection() {
 //    client.setServer(mqttServerIP, MQTT_Port);		// perhabs we have a problem with resolution of domain in WiFiClient
 	IPAddress mqttIP;
 	if (!mqttIP.fromString(mqttServerIP)) {
-		Serial.printf("[mqtt]: Error in localIP.fromString(%s);\n", mqttServerIP);
+		LOGGER.printf("[mqtt]: Error in localIP.fromString(%s);\n", mqttServerIP);
 	}
     client.setServer(mqttIP, MQTT_Port);
 
@@ -89,12 +90,12 @@ TaskHandle_t KSMQTTConnection::createConnection(EventGroupHandle_t *phEventGroup
 	_phEventGroupNetwork = phEventGroupNetwork;
 
 	int coreID = xPortGetCoreID();
-	//Serial.print(F("CoreID: "));
-	//Serial.println(coreID);
+	//LOGGER.print(F("CoreID: "));
+	//LOGGER.println(coreID);
 	
 	UBaseType_t setupPriority = uxTaskPriorityGet(NULL);
-	//Serial.print(F("setup: priority = "));
-	//Serial.println(setupPriority);
+	//LOGGER.print(F("setup: priority = "));
+	//LOGGER.println(setupPriority);
 
 	xTaskCreatePinnedToCore(
     	[](void* context){ static_cast<KSMQTTConnection*>(context)->tKSMQTTConnection(); },
@@ -116,13 +117,13 @@ void KSMQTTConnection::tKSMQTTConnection()
     // Warten auf WIFI-Initialisierung
     if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
         if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_INITIALIZED) == 0) {
-            //Serial.println(F("[mqtt] Wating for Event EG_NETWORK_INITIALIZED for 5 seconds"));
+            //LOGGER.println(F("[mqtt] Wating for Event EG_NETWORK_INITIALIZED for 5 seconds"));
           	EventBits_t eventGroupValue;
             eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, EG_NETWORK_INITIALIZED, pdFALSE, pdTRUE, pdMS_TO_TICKS(5000));
-            //Serial.println(F("[mqtt] Event EG_NETWORK_INITIALIZED set"));
+            //LOGGER.println(F("[mqtt] Event EG_NETWORK_INITIALIZED set"));
         }
     } else {
-        Serial.println(F("[mqtt] no EventGroup for EG_NETWORK_INITIALIZED. Waiting for 5 seconds"));
+        LOGGER.println(F("[mqtt] no EventGroup for EG_NETWORK_INITIALIZED. Waiting for 5 seconds"));
         vTaskDelay(pdMS_TO_TICKS(5000));    // let time for Wifi to initialie
     }
 
@@ -171,7 +172,7 @@ void KSMQTTConnection::reconnect() {
 			}
 			// Waiting for Wifi-Connection
 			if ((xEventGroupGetBits(*_phEventGroupNetwork) & EG_NETWORK_CONNECTED) == 0) {
-				Serial.println(F("[mqtt] Wating for Event EG_NETWORK_CONNECTED"));
+				LOGGER.println(F("[mqtt] Wating for Event EG_NETWORK_CONNECTED"));
 	
 				// Reset Connecting Event
 				if (_phEventGroupNetwork && (*_phEventGroupNetwork != NULL)) {
@@ -182,7 +183,7 @@ void KSMQTTConnection::reconnect() {
 	
 				EventBits_t eventGroupValue;
 				eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, (EG_NETWORK_INITIALIZED | EG_NETWORK_CONNECTED), pdFALSE, pdTRUE, portMAX_DELAY);
-				Serial.println(F("[mqtt] Event EG_NETWORK_CONNECTED set"));
+				LOGGER.println(F("[mqtt] Event EG_NETWORK_CONNECTED set"));
 			}
 
 			// Set Connecting Event
@@ -191,13 +192,13 @@ void KSMQTTConnection::reconnect() {
 			}
 		}
 
-        Serial.print(F("[mqtt] Starte MQTT-Verbindung..."));
+        LOGGER.print(F("[mqtt] Starte MQTT-Verbindung..."));
 		csClientAccess.EnterCriticalSection();
 		bConnected = client.connect(mqttClientID, mqttUserName, mqttUserPassword);
 		csClientAccess.LeaveCriticalSection();
 
         if (bConnected) {
-            Serial.println(F("verbunden"));
+            LOGGER.println(F("verbunden"));
 //            client.publish("home/test/live", "I\'m alive!");
 //            client.subscribe("home/test/live");
 
@@ -236,13 +237,13 @@ void KSMQTTConnection::reconnect() {
 			}
 
         } else {
-            Serial.print(F("Fehler, rc="));
+            LOGGER.print(F("Fehler, rc="));
 			csClientAccess.EnterCriticalSection();
-            Serial.print(client.state());
+            LOGGER.print(client.state());
 			csClientAccess.LeaveCriticalSection();
-            Serial.println(F(" versuche es in 30 Sekunden erneut"));
+            LOGGER.println(F(" versuche es in 30 Sekunden erneut"));
             counter++;
-			//Serial.print(".");
+			//LOGGER.print(".");
             vTaskDelay(pdMS_TO_TICKS(30000));
         }
     }
@@ -323,13 +324,13 @@ bool KSMQTTConnection::removeOnSubscribeTopicListener(const char* topic) {
 
 // callback for PubSubClient
 void KSMQTTConnection::mqttCallback(char* topic, byte* payload, unsigned int length) {
-//    Serial.print(F("Nachricht eingegangen ["));
-//    Serial.print(topic);
-//    Serial.print(F("] "));
+//    LOGGER.print(F("Nachricht eingegangen ["));
+//    LOGGER.print(topic);
+//    LOGGER.print(F("] "));
 //    for (int i = 0; i < length; i++) {
-//        Serial.print((char)payload[i]);
+//        LOGGER.print((char)payload[i]);
 //    }
-//    Serial.println();
+//    LOGGER.println();
 
 	// TODO: benötigen wir das wirklich???
 //	if (strcmp(topic, mqttTopicLive) == 0) {
@@ -386,10 +387,10 @@ bool KSMQTTConnection::waitForInit(TickType_t xTicksToWait) {
 		eventGroupValue = xEventGroupWaitBits(*_phEventGroupNetwork, EG_NETWORK_MQTT_CONNECTED, pdFALSE, pdTRUE, xTicksToWait);
 		// wenn Timeout, dann in DeepSleep gehen
 		if ((eventGroupValue & EG_NETWORK_MQTT_CONNECTED) != EG_NETWORK_MQTT_CONNECTED) {
-    		//Serial.printf("No Connection to MQTT.\n");
+    		//LOGGER.printf("No Connection to MQTT.\n");
 			return false;
 		}
-		//Serial.println("Connected to mqtt-server.");
+		//LOGGER.println("Connected to mqtt-server.");
 		return true;
 	}
 
